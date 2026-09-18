@@ -1,0 +1,159 @@
+{
+  "skill_name": "incremental-work-order",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "这个仓库还没有调度系统。按 incremental-work-order 初始化。",
+      "expected_output": "Builds only the main-tree scheduling set (README with the rules, manifest with empty orders and executors, status with a measured baseline, rulings with the first ruling, the shared executor charter), records a pointer instead of creating a project plan when one already exists, does not touch AGENTS.md, commits with explicit paths, and then stops to ask what the user wants - offering one or two candidates read out of the measurement.",
+      "expectations": [
+        "Creates exactly the main-tree set, with orders and executors empty",
+        "Writes a measured baseline (commit, build or test counts and exit codes) rather than a guess",
+        "Reuses an existing planning document by pointer instead of creating a second plan",
+        "Does not create a worktree, an order, or a per-tree document"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "我们还没决定 workspace 应该依赖 connection 还是二者平级，先给正在运行的 goal 建派工单让它实现。",
+      "expected_output": "Refuses to disguise the unresolved design decision as mechanical work, records or requests the ruling first, and explains the one decision needed before dispatch.",
+      "expectations": [
+        "Identifies the request as design-undecided",
+        "Does not create an executable work order",
+        "Asks for or records the ruling with a citable id"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "我有两块互不重叠的活：后端存储重构和前端状态页重做，都派下去并行做。",
+      "expected_output": "Assigns each stream to its own tree and executor, one queue slice per tree, proposes opening the second tree for the user's approval instead of starting it silently, and checks that write paths and exclusive areas do not overlap.",
+      "expectations": [
+        "Never puts two executors on the same queue slice",
+        "Proposes the new worktree and executor for approval before creating them",
+        "Verifies the two write scopes do not overlap",
+        "Gives each tree its own batch boundary"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "把 X 模块挪到 Y 并删掉兼容 shim，全在这一个仓库里，能不能一次派完？",
+      "expected_output": "Recognises a contiguous single-area change, keeps it in one tree and one executor, and splits it into two to four ordered work orders with dependencies and commit boundaries rather than parallelising it.",
+      "expectations": [
+        "Classifies it as one contiguous change",
+        "Splits into ordered orders with decidable dependency conditions",
+        "Does not open extra trees"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "后端要改 wire 合同，前端跟着消费，两边同时派下去吧。",
+      "expected_output": "Recognises the cross-side coupling and refuses to parallelise: the contract is settled first by one order, and only then are the two sides dispatched to consume it.",
+      "expectations": [
+        "Identifies the shared contract as a single point of truth",
+        "Sequences the contract order before the two consumers",
+        "Explains why parallel dispatch would drift"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "单写好了，放哪？主树的 docs/implementation/work-orders/ 对吗？",
+      "expected_output": "Explains that the contract of record lives in the sub-tree's own docs/implementation/work-orders/ and the main tree keeps only metadata plus a document pointer with the commit sha; the main tree does not keep a work-orders directory.",
+      "expectations": [
+        "Places the contract in the executing tree",
+        "Records id, executor, dependencies, write scope and document@sha in the main manifest",
+        "Does not create a second work-orders directory in the main tree"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "新单投进去了，我怎么通知那个执行者？要不要把 steering 贴给它？",
+      "expected_output": "Explains that delivery is the notification: writing the order into the sub-tree and committing it on that branch is enough, because the executor re-reads its own tree and the main tree's rules, manifest and status at every stage boundary. Nothing has to be carried into its session, and the announcement in the reply is for the user, not a channel to the executor.",
+      "expectations": [
+        "States delivery-as-notification",
+        "Names the stage-boundary re-read as the pickup mechanism",
+        "Does not invent a message-passing step between sessions"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "开树和起执行者都做完了，给我个总结。",
+      "expected_output": "Inlines the full launch prompt text for the user to paste, one block per session with the working directory on the line above and no placeholders left, plus what was delivered and where, the batch boundary, the inspection entry points, and what was recorded in the main tree.",
+      "expectations": [
+        "Gives the launch prompt text in full, never as a pointer to a file",
+        "States the working directory for each session",
+        "Leaves no placeholders in what it hands over",
+        "Explains what the user must do (open the session) versus what is already done"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "我们项目里有一个同事留下的 worktree，能不能直接给它派单？",
+      "expected_output": "Applies the four reuse checks - under version control and committable with a usable HEAD, nobody writing it right now, write scope not conflicting, its own AGENTS.md or plan not conflicting - and returns one of: reuse (register it and write its charter), read-only reference, or open a new tree with the user's approval.",
+      "expectations": [
+        "Runs the four checks explicitly",
+        "Treats a tree that cannot be committed to as unusable",
+        "Requires approval only for opening a new tree"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "执行者做完这一批就该停下来等我确认了吧？",
+      "expected_output": "Corrects the premise: the executor never stops for a checkpoint. At the end of a batch it tags its own tree (checkpoint/<batch>) and writes the checkpoint report into its own status, then carries on. The checkpoint is an optional inspection window for the user and the scheduler.",
+      "expectations": [
+        "States that the executor keeps running",
+        "Names the tag and the checkpoint report as what a batch produces",
+        "Does not introduce a waiting or approval step at the batch boundary"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "执行中发现一个产品语义没定（比如同一角色能不能跑两个会话），它该停下来问吗？",
+      "expected_output": "Says it marks that part blocked in its own status and continues with the unaffected orders - escalation is not stopping. Only when the whole queue is blocked with nothing left to advance does it wait.",
+      "expectations": [
+        "Marks the blocked part rather than stopping everything",
+        "Continues with unaffected orders",
+        "States the only stop condition (whole queue blocked)"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "门全绿了：扫描零命中、回归全过、前置检查通过。可以记 DONE 了吗？",
+      "expected_output": "Applies the false-green checklist before accepting: what each gate does when the resource is absent or unknown, whether every guard has a counter-example proving it can detect a positive, whether assertion strength was narrowed, and whether the reader can structurally see what the writer wrote.",
+      "expectations": [
+        "Refuses DONE while a gate lacks a counter-example or an absent-behaviour statement",
+        "Names at least one concrete false-green pattern",
+        "Requires the missing gate columns or a PARTIAL with the itemised gap"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "三个执行者都在跑，其中一个到批次末了，我们把它合回主树吧。",
+      "expected_output": "Requires the user's approval, checks the tree is clean at a batch boundary with gates just run, merges with --no-ff one executor at a time, re-runs the gates and full suite on the main tree and recomputes digests instead of trusting the executor's numbers, records approval, merge commit, conflicts, re-verification and rollback path, then updates that executor's baseline and tells the other executors.",
+      "expectations": [
+        "Merges only at a batch boundary with a clean tree",
+        "Re-verifies on the main tree rather than reusing the executor's numbers",
+        "Serialises merges and updates baselines afterwards",
+        "Records the approval and the rollback path"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "这一批里三张单 DONE、一张 PARTIAL（缺真机样本），能合吗？",
+      "expected_output": "Allows the merge when the tree's regression is green, the merged part is verifiable and the unverified part is recorded as a known gap in the main tree's roll-up; asks the user to confirm if the batch introduces unverified behaviour changes.",
+      "expectations": [
+        "States the three conditions rather than a blanket no",
+        "Requires the unverified part to be recorded as a known gap",
+        "Escalates to the user when unverified behaviour changes are involved"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "我们隔壁团队的仓库也需要改一处，给它派个单吧。",
+      "expected_output": "Explains that executors must be sub-trees this tree dispatched, since only then does it hold the whitelisted write right; a repo outside that hierarchy gets no order - it is either brought into the hierarchy first or treated as read-only material.",
+      "expectations": [
+        "Refuses to dispatch to a repo it cannot write",
+        "Offers the two lawful alternatives (bring it into the hierarchy, or read-only)",
+        "Does not invent a copy-and-reconcile mechanism"
+      ]
+    }
+  ]
+}
