@@ -49,9 +49,10 @@ message and its tree disagree, fix the tree with a follow-up commit rather than 
 
 ## Translations
 
-The README is bilingual in one file. A separate `README.<lang>.md`, linked from the top of `README.md`,
-is welcome; keep skill text (`SKILL.md`) in the language the maintainer reviews best and translate only the
-human-facing entry points.
+`README.md` is English and `README.zh-CN.md` is Chinese; change one and update the other in the same pull
+request. Further languages are welcome as `README.<lang>.md`, linked from the switcher line at the top of
+`README.md`. Keep `SKILL.md` in the language the maintainer reviews best — translate the human-facing entry
+points, not the rules.
 
 ## 中文要点
 

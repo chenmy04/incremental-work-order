@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this workflow in research, teaching or a product, please cite it as below."
+title: "incremental-work-order: a dispatch workflow for long-running coding agents"
+abstract: >-
+  A repository-backed dispatch process for long-running agent work: one main tree schedules, each sub-tree
+  executes its own slice of work orders, batches end in git checkpoints that are inspection windows rather than
+  stops, and merges back are approval-gated and re-verified on the main tree. It ships the rules, templates, a
+  structural validator, an anti-false-green checklist and behavioural eval cases.
+type: software
+version: 0.1.0
+date-released: "2026-09-18"
+license: MIT
+repository-code: "https://github.com/mmm-05610/incremental-work-order"
+url: "https://github.com/mmm-05610/incremental-work-order"
+authors:
+  - name: "mmm-05610"
+    website: "https://github.com/mmm-05610"
+keywords:
+  - ai-agents
+  - agent-workflow
+  - orchestration
+  - multi-agent
+  - work-orders
+  - git-worktree
+  - specification-driven-development

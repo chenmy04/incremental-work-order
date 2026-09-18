@@ -1,0 +1,74 @@
+name: Platform support
+description: The workflow behaves differently on a specific agent, tool or OS.
+title: "[platform] "
+labels: ["platform"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The rules are agent-agnostic, but the machinery around them is not: launch prompts use a `/goal`-style
+        entry point, sub-trees need their own sessions, and the validator needs a Python 3. Use this form when a
+        *specific* agent, tool or OS behaves differently from what the docs describe.
+  - type: input
+    id: platform
+    attributes:
+      label: Agent / tool and version
+      placeholder: "ZCode 1.x, Claude Code 2.1, Codex CLI 0.147, Gemini CLI …"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and shell
+      placeholder: "macOS 15 / zsh, Windows 11 + WSL2 / bash, Ubuntu 24.04"
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Which part misbehaves?
+      options:
+        - "Starting an executor session (launch prompt / /goal equivalent)"
+        - "Sub-tree creation or worktree handling"
+        - "Re-reading the scheduler at stage boundaries"
+        - "checkpoint tags or the git traffic"
+        - "The validator script"
+        - "Other (explain below)"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What the docs promise here
+      description: Quote the sentence from SKILL.md, GETTING-STARTED.md or a template.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happens instead
+      description: Outcomes, error text, exit codes. Say whether it is reproducible or intermittent.
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround, if you found one
+    validations:
+      required: false
+  - type: input
+    id: python
+    attributes:
+      label: Python version (validator issues only)
+      placeholder: "python3 --version"
+    validations:
+      required: false
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Before filing
+      options:
+        - label: I removed private paths, project names and credentials from the report.
+          required: true
+        - label: I checked this is not covered by SKILL.md's "what it deliberately does not do" list.
+          required: true
