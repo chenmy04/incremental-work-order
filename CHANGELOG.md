@@ -31,6 +31,16 @@ invalidates an existing order, charter or ledger, or that changes what a conform
   is parsed, not executed — running the behavioural cases needs an agent (`claude plugin eval`), and the two kinds
   of evidence are kept separate.
 
+### Added
+
+- **Executor-side parallelism, bounded and non-writing.** The scheduler declares the independent units in the order
+  (`parallel_units` — the declaration *is* the authorisation), and the executor may fan out subagents inside them:
+  depth one, at most four at a time, disjoint files. Subagents never touch the contract, this tree's ledger, or git —
+  they produce file changes while the executor alone commits, ticks stages, runs the gates and records their requests
+  and cost under the budget in `prefs.md`. A subagent's report is a cited claim, not evidence: the executor must
+  re-run that unit's gate before a stage may be ticked. Order and charter templates carry the field, the preferences
+  ledger gains a row, and three validator tests cover the malformed cases.
+
 ### Changed
 
 - **Merges are pinned to the checkpoint's commit sha**, not to the executor's branch. Because the executor never
