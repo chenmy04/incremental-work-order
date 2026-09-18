@@ -37,9 +37,17 @@ jobs:
           print("SKILL.md frontmatter ok")
           PY
 
-      - name: Eval set parses
+      # NOTE: structural checks only. evals.json is *parsed* here, not executed - running the behavioural
+      # cases needs an agent (e.g. `claude plugin eval`); keep the two kinds of evidence separate.
+      - name: Eval set parses (structural only - cases are not executed here)
         run: |
-          python3 -c "import json,pathlib; d=json.loads(pathlib.Path('evals/evals.json').read_text()); assert d['evals'], 'no eval cases'; print(len(d['evals']), 'eval cases')"
+          python3 -c "import json,pathlib; d=json.loads(pathlib.Path('evals/evals.json').read_text()); assert d['evals'], 'no eval cases'; print(len(d['evals']), 'eval cases (parsed, not run)')"
+
+      - name: Every validator rule has a counter-example
+        run: python3 -m unittest discover -s tests -v
+
+      - name: The shipped template is usable end to end
+        run: python3 tests/fill_template.py
 
       - name: Validator compiles
         run: python3 -m py_compile scripts/validate_order.py

@@ -97,8 +97,9 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
 4. **Inspect whenever you like** — `git -C <subtree> tag -l 'checkpoint/*'` and read that tree's
    `docs/implementation/status.md` (what to try / what needs your ruling / what was spent / where to resume).
    Try the thing it says works; that is where new problems come from.
-5. **Merge at a batch end** — the scheduler proposes, you approve, it merges with `--no-ff`, then **re-runs the
-   gates and the full suite on the main tree** instead of trusting the executor's numbers.
+5. **Merge at a batch end** — the scheduler proposes (naming the checkpoint tag *and* the commit sha you are
+   approving), you approve, it merges that sha with `--no-ff`, then **re-runs the gates and the full suite on
+   the main tree** instead of trusting the executor's numbers.
 
 ## What's inside
 
@@ -128,11 +129,16 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
    independent areas → one tree each; a shared contract → settle it first, then fan out.
 5. Batches belong to the executing tree; the main tree keeps no batch list.
 6. Deliver, then let the stage-boundary re-read pick it up. No message passing, no copies, no drift merging.
+   The delivery commit uses a pathspec (`git commit -- <path>`, after `git add -N` for a new file) — never
+   `git add` followed by a bare `git commit`, because the executor shares that index and a bare commit would
+   carry its staged files along.
 7. A revision must leave a receipt (`已纳入 work order <N> 修订 @<sha>`) so "did the redirect land" is a fact.
 8. PARTIAL is respectable and mergeable — provided the tree is green, the merged part verifiable, and the
    unverified part is recorded as a known gap.
 9. Merges are one at a time, re-verified on the main tree, with the approval, conflicts, digests and rollback
-   path written down.
+   path written down. The approval binds to the checkpoint's **commit sha**, not to the branch it lives on —
+   the executor keeps working, so the branch moves while the approval does not. If the main tree itself moved
+   between approval and merge, the integration conditions are re-checked first.
 10. There is exactly one copy of the rules. Everything else references it.
 11. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
     may deviate with a written `waive` reason. The executor's side is strict instead — a fixed order format with

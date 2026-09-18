@@ -25,6 +25,8 @@ thing work.
 ```bash
 python3 -c "import json,pathlib; json.loads(pathlib.Path('evals/evals.json').read_text())"
 python3 -m py_compile scripts/validate_order.py
+python3 -m unittest discover -s tests                                   # every rule has a counter-example
+python3 tests/fill_template.py                                          # the shipped template is usable
 python3 scripts/validate_order.py examples/conforming --strict          # must pass
 python3 scripts/validate_order.py examples/nonconforming --strict; test $? -ne 0   # must fail
 ```

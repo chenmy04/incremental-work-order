@@ -7,6 +7,41 @@ invalidates an existing order, charter or ledger, or that changes what a conform
 
 ## [Unreleased]
 
+### Fixed
+
+- **The shipped work-order template was still v1** while `SKILL.md` required the v2 format: no frontmatter, no
+  `Requirements`/`Scenario`, plain-number stages, and headings (`Exact scope`, `Definitions of Done`) the
+  validator does not recognise. Anyone copying the official template would have produced an order that failed the
+  official validator. Restored to v2, and CI now proves it: the template is filled in, must pass `--strict`,
+  must be refused as an unfinished batch, and must pass once its stages are ticked (`tests/fill_template.py`).
+- **Four validator rules were not enforced** (found by external review, reproduced, then fixed):
+  a gates table with empty counter-example/absent cells was skipped when the row had fewer cells than the header
+  (`continue` instead of a defect); `ruling: 123` passed because a non-string was ignored; a second `Requirement`
+  without its own `Scenario` passed; `waive` entries listing a section without a reason passed.
+- A variable-shadowing bug introduced while fixing the waive check (a loop variable named `text` clobbered the
+  document text), caught by the new per-rule tests.
+
+### Added
+
+- `tests/test_validate_order.py` — nineteen regression tests, one counter-example per rule, run in CI.
+- `tests/fill_template.py` — the template gate described above.
+- `examples/walkthrough.md` — a worked batch with a mid-flight decision, a blocker the executor could not decide,
+  a revision and its receipt, a checkpoint, a defect found by testing, and a merge pinned to a snapshot.
+- CI steps for both new checks. The eval step is now labelled explicitly as *structural only*: `evals/evals.json`
+  is parsed, not executed — running the behavioural cases needs an agent (`claude plugin eval`), and the two kinds
+  of evidence are kept separate.
+
+### Changed
+
+- **Merges are pinned to the checkpoint's commit sha**, not to the executor's branch. Because the executor never
+  stops, the branch keeps moving after approval; the approval therefore binds to `checkpoint/<batch>^{commit}`,
+  which must match `merge_back[].sha`. If the main tree moves between approval and merge, the integration
+  conditions are re-checked first.
+- **Delivery uses a pathspec commit** (`git add -N -- <path>` then `git commit -- <path>`). A bare
+  `git add` + `git commit` in a shared worktree commits the executor's staged files too — reproduced locally, and
+  now forbidden in the rules, with a pre-commit check of the staged path set.
+
+
 ### Added
 
 - **Plugin packaging**: `.claude-plugin/marketplace.json` and `plugin.json`, so the skill installs with

@@ -110,8 +110,9 @@ def validate_one(path: Path, strict: bool):
         problems.append(f"frontmatter id {meta.get('id')!r} != file number {number!r}")
     if slug and meta.get("slug") not in (None, slug):
         problems.append(f"frontmatter slug {meta.get('slug')!r} != file slug {slug!r}")
-    if isinstance(meta.get("ruling"), str) and not RULING_RE.match(meta["ruling"]):
-        problems.append(f"ruling must look like R-0007, got {meta['ruling']!r}")
+    ruling = meta.get("ruling")
+    if not isinstance(ruling, str) or not RULING_RE.match(ruling):
+        problems.append(f"ruling must be a quoted R-NNNN id, got {ruling!r} (waiving a ruling is not allowed)")
     paths = meta.get("write_paths")
     if not isinstance(paths, list) or not paths:
         problems.append("write_paths must be a non-empty JSON list")
@@ -122,7 +123,16 @@ def validate_one(path: Path, strict: bool):
         problems.append("terminal must contain a *_DONE entry")
 
     waived = meta.get("waive") if isinstance(meta.get("waive"), list) else []
-    waived_keys = {str(w).split(":")[0].strip() for w in waived}
+    waived_keys = set()
+    for entry in waived:
+        raw_entry = str(entry)
+        name, sep, reason = raw_entry.partition(":")
+        if not sep or not reason.strip():
+            problems.append(f"waive entry {raw_entry!r} must be '<section>: <reason>' with a non-empty reason")
+        key = name.strip()
+        if key and key not in REQUIRED_SECTIONS:
+            problems.append(f"waive entry names an unknown section: {key!r}")
+        waived_keys.add(key)
     for title in REQUIRED_SECTIONS:
         if section_body(text, title) is None and title not in waived_keys:
             problems.append(f"missing section: {title} (or waive it with a reason)")
@@ -131,6 +141,9 @@ def validate_one(path: Path, strict: bool):
     if requirements is not None:
         if "### Requirement:" not in requirements:
             problems.append("Requirements needs at least one '### Requirement:'")
+        for index, block in enumerate(re.split(r"^###\s+Requirement:", requirements, flags=re.M)[1:], 1):
+            if "#### Scenario:" not in block:
+                problems.append(f"Requirement {index} has no '#### Scenario:' of its own")
         scenarios = re.findall(r"####\s+Scenario:.*?(?=####\s+Scenario:|\Z)", requirements, re.S)
         if not scenarios:
             problems.append("Requirements needs at least one '#### Scenario:'")
@@ -155,9 +168,18 @@ def validate_one(path: Path, strict: bool):
                 problems.append("Gates table needs a counter-example column")
             if not re.search(r"缺席|absent", header, re.I):
                 problems.append("Gates table needs an absent-behaviour column")
+            header_cells = [c.strip() for c in header.strip().strip("|").split("|")]
+            if len(header_cells) < 4:
+                problems.append("Gates table needs at least four columns: gate / assertion / counter-example / absent")
             for i, raw in enumerate(data, 1):
+                if set(raw.strip()) <= set("|-: "):
+                    continue  # separator row
                 cells = [c.strip() for c in raw.strip().strip("|").split("|")]
-                if len(cells) < 4:
+                if len(cells) < len(header_cells):
+                    problems.append(
+                        f"Gates row {i} has {len(cells)} cells but the header declares {len(header_cells)}"
+                        " — a short row is a defect, not something to skip"
+                    )
                     continue
                 if not cells[-2] or not cells[-1]:
                     problems.append(f"Gates row {i} leaves the counter-example or absent cell empty")
