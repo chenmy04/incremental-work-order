@@ -120,6 +120,17 @@ class OrderRules(unittest.TestCase):
         problems = check("001-probe.md", BASE.replace('terminal: ["PROBE_DONE", "PROBE_PARTIAL"]', 'terminal: ["PROBE_PARTIAL"]'))
         self.assertTrue(must_mention(problems, "*_DONE")[0], problems)
 
+    def test_parallel_units_must_be_a_list_of_strings(self):
+        problems = check("001-probe.md", BASE.replace("waive: []", 'waive: []\nparallel_units: ["unit-a", 7]'))
+        self.assertTrue(must_mention(problems, "parallel_units")[0], problems)
+
+    def test_parallel_units_must_be_unique(self):
+        problems = check("001-probe.md", BASE.replace("waive: []", 'waive: []\nparallel_units: ["unit-a", "unit-a"]'))
+        self.assertTrue(must_mention(problems, "must be unique")[0], problems)
+
+    def test_parallel_units_are_optional(self):
+        self.assertEqual(check("001-probe.md", BASE.replace("waive: []", 'waive: []\nparallel_units: ["unit-a"]')), [])
+
     # --- sections and waivers --------------------------------------------------
     def test_missing_section_is_a_problem(self):
         problems = check("001-probe.md", BASE.replace("## Gates\n", "## NotGates\n"))

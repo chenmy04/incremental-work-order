@@ -116,6 +116,12 @@ def validate_one(path: Path, strict: bool):
     paths = meta.get("write_paths")
     if not isinstance(paths, list) or not paths:
         problems.append("write_paths must be a non-empty JSON list")
+    units = meta.get("parallel_units")
+    if units is not None:
+        if not isinstance(units, list) or any(not isinstance(unit, str) or not unit.strip() for unit in units):
+            problems.append("parallel_units must be a JSON list of non-empty strings (or omit it)")
+        elif len(set(units)) != len(units):
+            problems.append("parallel_units entries must be unique")
     terminal = meta.get("terminal")
     if not isinstance(terminal, list) or not terminal:
         problems.append("terminal must be a non-empty JSON list")
