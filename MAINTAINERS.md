@@ -20,6 +20,22 @@
 5. **Handles security reports privately** per [SECURITY.md](SECURITY.md) and notes the outcome in the changelog
    once a fix ships.
 
+## Repository protections
+
+`main` and the release tags are guarded by repository rulesets; both have an **empty bypass list**, so the
+maintainer is bound by them too.
+
+| Ruleset | Applies to | Enforced |
+| --- | --- | --- |
+| `protect-main` | the default branch | pull request required (0 approvals while there is one maintainer, all review threads resolved), the `validate` check required and the branch must be up to date, force-pushes and deletions refused |
+| `protect-release-tags` | tags matching `refs/tags/v*` | deleting or moving a published tag is refused (creating a new tag is allowed) |
+
+Consequences worth knowing: **changes land through a pull request**, so a commit that skips CI is impossible even
+for the maintainer; the escape hatch for an outage is editing the ruleset itself, which is visible in the audit
+log rather than a standing bypass. When a second maintainer joins, raise the approval count to one and turn on
+code-owner review — until then, one approval would deadlock the only maintainer, since GitHub does not let you
+approve your own pull request.
+
 ## How decisions are made
 
 - Small fixes — wording, a missing counter-example, a typo — land by pull request at the maintainer's discretion.
