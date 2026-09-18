@@ -1,0 +1,70 @@
+name: Bug report
+description: The workflow, a template or the validator did not do what it promises.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository is a workflow (Markdown rules + one dependency-free validator), so a "bug" is usually one of:
+        a rule that reads differently than it behaves, a gate that cannot fail, a template that contradicts the rules,
+        or the validator accepting/rejecting the wrong thing. Concrete text beats description.
+  - type: input
+    id: commit
+    attributes:
+      label: Version or commit
+      description: The tag, release or commit you tested.
+      placeholder: "0.1.0 or 0de3e8f"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What the workflow promises
+      description: Quote the sentence from SKILL.md or the template that you followed.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened
+      description: What the agent or the validator did instead. Paste output where you can.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Smallest reproduction
+      description: |
+        A numbered list is ideal. For validator issues, give the exact file and command:
+        `python3 scripts/validate_order.py <path> --strict`.
+    validations:
+      required: true
+  - type: dropdown
+    id: gate
+    attributes:
+      label: Is a gate involved?
+      options:
+        - "No — wording, structure or docs"
+        - "Yes — a rule or gate, and it has no counter-example"
+        - "Yes — the validator accepted something it should reject"
+        - "Yes — the validator rejected something it should accept"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Which agent/tooling, which OS, python version for validator issues.
+      placeholder: "ZCode 1.x / macOS 15 / python 3.12"
+    validations:
+      required: false
+  - type: checkboxes
+    id: house-rules
+    attributes:
+      label: Before filing
+      options:
+        - label: I removed private paths, project names and credentials from the report.
+          required: true
+        - label: This is not a security issue (those go through Security → Report a vulnerability).
+          required: true

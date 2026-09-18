@@ -1,0 +1,49 @@
+name: Feature request
+description: A decision or a piece of work the current workflow handles badly.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the *decision you are trying to make* or the work you are trying to dispatch — not the
+        rule you think should exist. Rules that cannot be checked are out of scope by policy (see SECURITY.md).
+  - type: textarea
+    id: situation
+    attributes:
+      label: The situation
+      description: What are you doing, with how many trees/executors/orders, and what goes wrong or feels heavy?
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What the current rules say
+      description: Quote the parts of SKILL.md that apply, so we can see whether the gap is missing, too strict, or unclear.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Smallest change that would help
+      description: Your proposal, if you have one. One rule, one field, one template section is better than a redesign.
+    validations:
+      required: false
+  - type: textarea
+    id: checkable
+    attributes:
+      label: How could it be checked?
+      description: |
+        What would make this rule enforceable — a validator rule, a required document section, a counter-example,
+        or an eval case? "The agent should remember to…" is not checkable and will be asked for a check.
+    validations:
+      required: true
+  - type: checkboxes
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      options:
+        - label: I checked that this is not already covered by SKILL.md, a template, or the prefs ledger.
+          required: true
+        - label: I considered handling it as a project preference (`prefs.md`) rather than a rule.
+          required: false

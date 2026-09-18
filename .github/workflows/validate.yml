@@ -1,0 +1,75 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Skill metadata is present and well-formed
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, sys
+          text = pathlib.Path("SKILL.md").read_text(encoding="utf-8")
+          if not text.startswith("---\n"):
+              sys.exit("SKILL.md must open with YAML frontmatter")
+          end = text.find("\n---", 4)
+          if end < 0:
+              sys.exit("SKILL.md frontmatter is unterminated")
+          head = text[4:end]
+          if not re.search(r"^name:\s*incremental-work-order\s*$", head, re.M):
+              sys.exit("frontmatter must declare name: incremental-work-order")
+          if not re.search(r"^description:", head, re.M):
+              sys.exit("frontmatter must declare a description (the trigger text)")
+          print("SKILL.md frontmatter ok")
+          PY
+
+      - name: Eval set parses
+        run: |
+          python3 -c "import json,pathlib; d=json.loads(pathlib.Path('evals/evals.json').read_text()); assert d['evals'], 'no eval cases'; print(len(d['evals']), 'eval cases')"
+
+      - name: Validator compiles
+        run: python3 -m py_compile scripts/validate_order.py
+
+      - name: Conforming order passes, and its batch is mergeable
+        run: |
+          python3 scripts/validate_order.py examples/conforming --strict
+          python3 scripts/validate_order.py examples/conforming --batch b1-parser-move --strict
+
+      - name: Unfinished order passes structurally but its batch is not mergeable
+        run: |
+          python3 scripts/validate_order.py examples/incomplete --strict
+          set +e
+          python3 scripts/validate_order.py examples/incomplete --batch b2-flag-rename --strict
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            echo "::error::an unfinished batch was reported mergeable — the checkbox gate lost its teeth"
+            exit 1
+          fi
+          echo "unfinished batch correctly blocked (exit $code)"
+
+      - name: Non-conforming order is rejected (the counter-example gate)
+        run: |
+          set +e
+          python3 scripts/validate_order.py examples/nonconforming --strict
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            echo "::error::the non-conforming example passed the validator — a gate lost its teeth"
+            exit 1
+          fi
+          echo "non-conforming example correctly rejected (exit $code)"

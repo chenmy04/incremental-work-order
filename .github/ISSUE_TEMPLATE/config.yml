@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: https://github.com/mmm-05610/incremental-work-order/security/advisories/new
+    about: A rule that is unsafe to follow, or a gate that cannot fail — report it privately here.
+  - name: Read the rules first
+    url: https://github.com/mmm-05610/incremental-work-order/blob/main/SKILL.md
+    about: Most "how should I…" questions are answered in SKILL.md; please skim it before filing.

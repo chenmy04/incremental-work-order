@@ -126,6 +126,20 @@ session (ZCode, Claude Code, or any equivalent). A project-local copy shadows a 
 - No automatic merging, no auto-publish, no silent acceptance loosening.
 - No claim that a green suite means anything by itself — see the false-green checklist.
 
+## Contributing and community / 贡献与社区
+
+| File | Why it exists |
+| --- | --- |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | The two invariants (one copy of the rules; every guard must be shown to fail) and how to propose a change |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Contributor Covenant v2.1 |
+| [SECURITY.md](SECURITY.md) | What counts as a security bug here (an unsafe rule, a gate that cannot fail) and how to report it privately |
+| [AGENTS.md](AGENTS.md) | Instructions for agents asked to modify this repo |
+| [CHANGELOG.md](CHANGELOG.md) | Keep a Changelog; versions follow the skill contract |
+| [examples/](examples/) | One conforming, one unfinished and one non-conforming order — CI runs all three to prove the gates have teeth |
+| [.github/workflows/validate.yml](.github/workflows/validate.yml) | CI: skill metadata, eval set, validator compiles, conforming passes, unfinished batch blocked, non-conforming rejected |
+
+`python3 scripts/validate_order.py <path> --strict` is the same check CI runs — run it before opening a pull request.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
