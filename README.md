@@ -91,6 +91,9 @@ session (ZCode, Claude Code, or any equivalent). A project-local copy shadows a 
 | `assets/worktree-charter-template.md` | The per-tree charter (scope, write rights, slice, batches) |
 | `assets/executor-charter.md` | The executor's discipline |
 | `assets/executor-goal-prompt.md` | The ≤15-line launch prompt |
+| `assets/prefs-template.md` | The preferences ledger (execution mode, approval appetite, cadence, cost cap) |
+| `assets/status-template.md` | The executor ledger format, including a questions channel |
+| `scripts/validate_order.py` | Structural validator: `--strict`, `--batch <name>` (the merge gate needs every stage box ticked) |
 | `references/initialization-checklist.md` | Exactly what to build at init, and what not to |
 | `references/false-green-checklist.md` | Seven ways a green gate lies, with three worked cases |
 | `evals/evals.json` | Fifteen behavioural test cases (they live here, they are not shipped to consumers) |
@@ -111,6 +114,9 @@ session (ZCode, Claude Code, or any equivalent). A project-local copy shadows a 
 9. Merges are one at a time, re-verified on the main tree, with the approval, conflicts, digests and rollback
    path written down.
 10. There is exactly one copy of the rules. Everything else references it.
+11. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and may
+    deviate with a written `waive` reason. The executor side is strict instead - a fixed order format with WHEN/THEN
+    scenarios, checkbox stages and a validator - because nobody talks to an executor directly.
 
 ## What it deliberately does not do / 明确不做
 

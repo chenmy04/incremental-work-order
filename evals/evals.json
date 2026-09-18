@@ -154,6 +154,36 @@
         "Offers the two lawful alternatives (bring it into the hierarchy, or read-only)",
         "Does not invent a copy-and-reconcile mechanism"
       ]
+    },
+    {
+      "id": 16,
+      "prompt": "这个项目就我一个人维护，改动也不大，每次都开一棵子树太重了。",
+      "expected_output": "Offers solo mode as a recorded preference: the main tree implements directly, optionally with a subagent, still keeping orders, ledger, gates, terminal codes and the DoD, without creating a worktree. Notes that dispatch stays the default for long or parallel work.",
+      "expectations": [
+        "Treats the execution mode as a preference, not a rule",
+        "Keeps the order, ledger and gate discipline in solo mode",
+        "Records the preference so it is not asked again"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "这张单太小了，不需要 DoD 那一节，直接派吧。",
+      "expected_output": "Allows the omission only by declaring it in the order's waive list with a reason, and explains that an undeclared omission fails the validator.",
+      "expectations": [
+        "Requires an explicit waiver with a reason",
+        "Names the validator as the check",
+        "Does not silently drop the section"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "批次做完了，直接合吧，校验器还要跑吗？",
+      "expected_output": "Runs the structural validator for the batch in strict mode before proposing the merge: all stage checkboxes ticked, every gate carrying a counter-example and an absent-behaviour column, scenarios present, the ruling id valid; then makes the merge proposal with re-verification on the main tree.",
+      "expectations": [
+        "Runs validate_order.py --batch <name> --strict as a merge precondition",
+        "Treats unticked stage checkboxes as blocking",
+        "Still re-runs gates and the suite on the main tree after merging"
+      ]
     }
   ]
 }
