@@ -1,0 +1,5 @@
+# Collapse the two identities used by this repository into the canonical account.
+# GitHub attributes a commit by its author email, and maoqh@users.noreply.github.com belongs to a
+# different account than the one that maintains this repository.
+mmm-05610 <224382457+mmm-05610@users.noreply.github.com> <maoqh@users.noreply.github.com>
+mmm-05610 <224382457+mmm-05610@users.noreply.github.com> mao qinghui <2760376727@qq.com>
