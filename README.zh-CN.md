@@ -44,13 +44,36 @@
 
 ## 安装
 
+三条路，都在本机实测过（2026-09-18）；插件清单通过 `claude plugin validate`。
+
+**1. 当插件装**——Claude Code，以及读取同一套 marketplace 格式的 ZCode：
+
 ```bash
-git clone https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
-# 单个项目用：cp -r incremental-work-order <项目>/.agents/skills/
+claude plugin marketplace add mmm-05610/incremental-work-order
+claude plugin install incremental-work-order@incremental-work-order
 ```
 
-只要能读文件、能跑 git 的 agent 都行；启动提示词假设有 `/goal` 这类长期会话入口（ZCode、Claude Code 或等价物）。
-项目内的同名副本会遮蔽用户级那份——**只留一份**。
+`claude plugin details incremental-work-order` 会报 `Skills (1)`，常驻约 150 token、触发时约 1.9k；
+`claude plugin update incremental-work-order` 跟新版本。
+
+**2. 安装脚本**——任何 agent，除 git 与 POSIX shell 外无依赖：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.1.0
+```
+
+从克隆目录跑也行：`./install.sh --target ~/.claude/skills`、`./install.sh --from . --copy`、
+`./install.sh --update` 快进已有安装。脚本会选第一个存在的技能目录（`~/.agents/skills`，否则
+`~/.claude/skills`），并且**拒绝覆盖**已存在的安装。
+
+**3. 手动**——一条命令，钉住一个 release：
+
+```bash
+git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
+```
+
+只要能读 `SKILL.md`、能跑 git 的 agent 都行；启动提示词假设有 `/goal` 这类长期会话入口。
+**只留一份**——项目内的 `<项目>/.agents/skills/incremental-work-order` 会遮蔽用户级那份。
 
 ## 快速开始
 

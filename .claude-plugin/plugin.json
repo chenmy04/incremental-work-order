@@ -1,0 +1,13 @@
+{
+  "name": "incremental-work-order",
+  "version": "0.1.0",
+  "description": "Dispatch long-running agent work through repository-backed work orders: one main tree schedules, each sub-tree executes its own slice, batches produce git checkpoints that never stop the executor, and every gate must be shown to fail.",
+  "author": {
+    "name": "mmm-05610",
+    "url": "https://github.com/mmm-05610"
+  },
+  "homepage": "https://github.com/mmm-05610/incremental-work-order",
+  "repository": "https://github.com/mmm-05610/incremental-work-order",
+  "license": "MIT",
+  "keywords": ["workflow", "work-orders", "multi-agent", "orchestration", "git-worktree"]
+}

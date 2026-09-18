@@ -20,6 +20,9 @@ python3 -m py_compile scripts/validate_order.py
 python3 scripts/validate_order.py examples/conforming --strict            # must pass
 python3 scripts/validate_order.py examples/nonconforming --strict; test $? -ne 0   # must fail
 ```
+# optional, and only if you have the Claude Code CLI: validates the plugin/marketplace manifests
+claude plugin validate .
+```
 
 ## Changing behaviour
 

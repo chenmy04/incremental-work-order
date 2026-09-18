@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "incremental-work-order",
+  "description": "A dispatch workflow for long-running coding agents: one main tree schedules, sub-trees execute their own work orders, batches end in checkpoints that are inspection windows rather than stops, and merges back are approval-gated and re-verified.",
+  "owner": {
+    "name": "mmm-05610",
+    "url": "https://github.com/mmm-05610"
+  },
+  "metadata": {
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "incremental-work-order",
+      "description": "Dispatch long-running agent work through repository-backed work orders: one main tree schedules, each sub-tree executes its own slice, batches produce git checkpoints that never stop the executor, and every gate must be shown to fail.",
+      "author": {
+        "name": "mmm-05610"
+      },
+      "category": "workflow",
+      "source": "./",
+      "strict": false,
+      "skills": ["./"]
+    }
+  ]
+}

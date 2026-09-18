@@ -7,6 +7,20 @@ invalidates an existing order, charter or ledger, or that changes what a conform
 
 ## [Unreleased]
 
+### Added
+
+- **Plugin packaging**: `.claude-plugin/marketplace.json` and `plugin.json`, so the skill installs with
+  `claude plugin marketplace add mmm-05610/incremental-work-order` and
+  `claude plugin install incremental-work-order@incremental-work-order` (Claude Code, and ZCode which reads the
+  same marketplace format). The manifest passes `claude plugin validate`.
+- **`install.sh`**: a dependency-free installer for any agent — picks the first existing skills directory,
+  supports `--target`, `--tag`, `--from`, `--copy` and `--update`, and refuses to overwrite an existing install.
+
+### Changed
+
+- README install section (both languages) now documents the three routes with the measured facts (Skills (1),
+  ~150 tokens always-on / ~1.9k on invoke) instead of a single clone command.
+
 ## [0.1.0] - 2026-09-18
 
 First public release of the workflow.

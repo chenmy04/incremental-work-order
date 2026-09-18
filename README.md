@@ -50,13 +50,38 @@ user  ⇄  scheduler (main worktree)
 
 ## Install
 
+Three routes. All three were exercised locally on 2026-09-18; the plugin manifest passes `claude plugin validate`.
+
+**1. As a plugin** — Claude Code, and ZCode (it reads the same marketplace format) — installs and updates with the
+plugin machinery:
+
 ```bash
-git clone https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
-# or, for a single project:  cp -r incremental-work-order <project>/.agents/skills/
+claude plugin marketplace add mmm-05610/incremental-work-order
+claude plugin install incremental-work-order@incremental-work-order
 ```
 
-Works with any agent that can read files and run git; the launch prompt assumes a `/goal`-style long-running
-session (ZCode, Claude Code, or any equivalent). A project-local copy shadows a user-level one — keep exactly one.
+`claude plugin details incremental-work-order` reports `Skills (1)`, with roughly 150 tokens always-on and
+~1.9k on invoke. `claude plugin update incremental-work-order` picks up new releases.
+
+**2. The install script** — any agent, no dependencies beyond git and a POSIX shell:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.1.0
+```
+
+or from a clone: `./install.sh --target ~/.claude/skills`, `./install.sh --from . --copy`,
+`./install.sh --update` to fast-forward an existing install. It clones into the first existing skills directory
+(`~/.agents/skills`, else `~/.claude/skills`) and refuses to overwrite an existing install.
+
+**3. Manual** — one command, pin a release:
+
+```bash
+git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
+```
+
+Works with any agent that reads `SKILL.md` files and can run git; the launch prompt assumes a `/goal`-style
+long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one copy** — a project-local
+`<project>/.agents/skills/incremental-work-order` shadows a user-level install.
 
 ## Quickstart
 
