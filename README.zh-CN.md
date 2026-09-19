@@ -59,7 +59,7 @@ claude plugin install incremental-work-order@incremental-work-order
 **2. 安装脚本**——任何 agent，除 git 与 POSIX shell 外无依赖：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.1.0
+curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.2.0
 ```
 
 从克隆目录跑也行：`./install.sh --target ~/.claude/skills`、`./install.sh --from . --copy`、
@@ -69,7 +69,7 @@ curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/ma
 **3. 手动**——一条命令，钉住一个 release：
 
 ```bash
-git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
+git clone --branch v0.2.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
 ```
 
 只要能读 `SKILL.md`、能跑 git 的 agent 都行；启动提示词假设有 `/goal` 这类长期会话入口。
