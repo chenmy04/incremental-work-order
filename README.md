@@ -111,12 +111,14 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
 | `assets/worktree-charter-template.md` | The per-tree charter (scope, write rights, slice, batches) |
 | `assets/executor-charter.md` | The executor's discipline |
 | `assets/executor-goal-prompt.md` | The ≤15-line launch prompt |
+| `assets/role-goal-prompts.md` | Launch prompts for the optional roles and loops (reviewer, acceptance, scout, scheduler loop) |
 | `assets/prefs-template.md` | The preferences ledger (execution mode, approval appetite, cadence, cost cap) |
 | `assets/status-template.md` | The executor ledger format, including a questions channel |
-| `scripts/validate_order.py` | Structural validator: `--strict`, `--batch <name>` (the merge gate needs every stage box ticked) |
+| `scripts/validate_order.py` | Structural validator: `--strict`, `--batch <name>` (the merge gate needs every stage box ticked and a `## Batch report`), `--legacy-ok` for a pre-v2 queue, `--manifest` reconciliation |
 | `references/initialization-checklist.md` | Exactly what to build at init, and what not to |
 | `references/false-green-checklist.md` | Seven ways a green gate lies, with three worked cases |
-| `evals/evals.json` | Eighteen behavioural test cases (they live here; they are not shipped to consumers) |
+| `references/roles-and-loops.md` | The checklist for opening a role or changing a loop shape |
+| `evals/evals.json` | Twenty-three behavioural test cases (they live here; they are not shipped to consumers) |
 | `examples/` | Conforming, unfinished and non-conforming orders — CI runs all three to prove the gates have teeth |
 
 ## The rules in one screen
@@ -140,10 +142,12 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
    the executor keeps working, so the branch moves while the approval does not. If the main tree itself moved
    between approval and merge, the integration conditions are re-checked first.
 10. There is exactly one copy of the rules. Everything else references it.
-12. Executors may fan out subagents **only inside the independent units the scheduler declared** (`parallel_units`),
-    at depth one and at most four at a time — and never as writers. Subagents produce file changes; they do not
-    touch the contract, the ledger or git. The executor alone commits, ticks stages, runs the gates and records
-    their cost, because one worktree with several writers is the staging-area race this workflow already fixed.
+12. Every order declares its parallelism one way or the other: a non-empty `parallel_units` list, or
+    `parallelism: "none"` with a reason (an empty or omitted list silently meant single-threaded — measured on a
+    live queue: 64 of 81 orders). Executors then fan out subagents **only inside the declared units**, at depth
+    one and within the number the project recorded, and never as writers: subagents produce file changes, while
+    the executor alone commits, ticks stages, runs the gates and records their cost, because one worktree with
+    several writers is the staging-area race this workflow already fixed.
 11. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
     may deviate with a written `waive` reason. The executor's side is strict instead — a fixed order format with
     WHEN/THEN scenarios, checkbox stages and a validator — because nobody talks to an executor directly.

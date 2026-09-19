@@ -9,6 +9,8 @@ forbidden: ["vendor/**", "release/**"]
 ruling: R-0003
 terminal: ["PARSER_MOVE_DONE", "PARSER_MOVE_PARTIAL"]
 waive: []
+parallelism: "none"
+parallelism_reason: "single file plus its two importers — one writer, splitting would collide"
 ---
 
 ## Objective
@@ -101,3 +103,12 @@ this tree's `status.md` updated with the counts.
 
 - Green: `PARSER_MOVE_DONE`
 - Otherwise: `PARSER_MOVE_PARTIAL` with the exact remaining importers and evidence
+
+## Batch report
+
+```text
+门：G1 import guard 1/1 green, G2 parser suite 1/1 green
+退出码：pytest -q → 0 (34 passed)
+证据：examples/conforming/evidence/parser-move.json
+缺口：none
+```

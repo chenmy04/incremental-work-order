@@ -45,7 +45,7 @@
     },
     {
       "id": 5,
-      "prompt": "后端要改 wire 合同，前端跟着消费，两边同时派下去吧。",
+      "prompt": "后端要改接口契约，前端跟着消费，两边同时派下去吧。",
       "expected_output": "Recognises the cross-side coupling and refuses to parallelise: the contract is settled first by one order, and only then are the two sides dispatched to consume it.",
       "expectations": [
         "Identifies the shared contract as a single point of truth",
@@ -183,6 +183,86 @@
         "Runs validate_order.py --batch <name> --strict as a merge precondition",
         "Treats unticked stage checkboxes as blocking",
         "Still re-runs gates and the suite on the main tree after merging"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "工单写好了，`parallel_units` 我留空——反正执行者单线程做也行吧？",
+      "expected_output": "Corrects the premise: an omitted or empty list is how parallelism gets switched off silently (measured on a live queue: 64 of 81 orders carried an empty list, and the executors were locked to one thread without anyone deciding it). The order must declare it one way or the other - a non-empty `parallel_units` list, or `parallelism: \"none\"` with a `parallelism_reason`. The validator names it, and under --strict (batch close / merge) it is an error.",
+      "expectations": [
+        "Refuses a silently empty declaration",
+        "Accepts `parallelism: none` with a reason as the explicit alternative",
+        "States that --strict turns the advisory finding into a merge blocker"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "两张单都要改 `src/shared/**`，但我想让它们同时跑，行吗？",
+      "expected_output": "Refuses the overlap as written: the validator compares write_paths and requires `serialize_with` on at least one side, which is the machine-checked form of the roll-call that used to be kept in prose. Either declare the serialization (and run them in that order) or re-slice so the shared file belongs to one order only.",
+      "expectations": [
+        "Names write_paths overlap as the blocker",
+        "Requires an explicit serialize_with declaration instead of an informal note",
+        "Offers re-slicing as the alternative"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "旧队列里有一批单没有 frontmatter，校验器全红了，我该怎么办？",
+      "expected_output": "Pass --legacy-ok so the pre-v2 queue stays workable, and state the rule that replaces the exemption: any order that is touched again (revised, re-dispatched, split) must be upgraded to the current template. Naming is broader than NNN only - two to four digits, split siblings like 096a, and line prefixes like P41a all validate.",
+      "expectations": [
+        "Uses --legacy-ok for the untouched legacy queue",
+        "States that touching an order forces an upgrade",
+        "Names the accepted file-name shapes"
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "这批单改过两次方向，账上只写了提交信息，够吗？",
+      "expected_output": "Not enough: a body that claims a revision must carry structured records, `revisions: [{\"at\": <sha>, \"what\": ..., \"after_stage\": N, \"ruling\": R-xxxx}]`, so a reader can tell what changed, after which stage, and on whose ruling. Prose instructions about revisions (a template note) are not a claim and do not trip the check.",
+      "expectations": [
+        "Requires the structured revisions record for a claimed revision",
+        "Names the fields (sha, what, after_stage, ruling)",
+        "Does not treat an instructing note as a claim"
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "我想把流程写死一点，让调度者每一步都照做，别自由发挥。",
+      "expected_output": "Pushes back on the direction: the skill's defaults are a menu for the scheduler (free to deviate with a written reason) and a cage for the executors (write scope, gates with counter-examples, terminal codes, DoD, parallel units, revision receipts - all checkable). The one non-waivable division of labour is that whatever is dispatched must be decidable by the executor without the scheduler. If the scheduler sees a rule that does not fit the task, they should raise it with the user (and record it in the project's skill feedback file) rather than freeze themselves.",
+      "expectations": [
+        "States the asymmetry (scheduler free, executor constrained)",
+        "Keeps the decidable-by-the-executor rule as the floor",
+        "Routes rule friction to a proposal instead of more restrictions"
+      ]
+    },
+    {
+      "id": 24,
+      "prompt": "我装了这个 skill，接下来该干什么？",
+      "expected_output": "Takes the scheduler role for this repository instead of describing the skill: inspects the repo for the scheduling files (measured, not guessed), initialises them only if missing, and then presents a menu of options with costs — execution mode (solo or dispatch), how many work trees with which write scopes, which optional roles (reviewer, acceptance poller, reuse scout), and which loop shape — and asks the user to choose before dispatching or opening anything.",
+      "expectations": [
+        "Assumes the scheduler role explicitly",
+        "Reads the repo state first and labels unverified facts",
+        "Offers a menu with costs and waits for the user's choice before opening trees or sessions"
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "这个项目要跑很久，我不想每次来问进度。",
+      "expected_output": "Proposes a loop shape rather than a one-off: an unbounded scheduler loop for long-running supervision (or a bounded acceptance loop when the point is being told when something is ready to try), states the visibility it gives the user (heartbeat, ledger, bulletins), and hands over the launch prompt text in full with the working directory — from the shipped role prompts, not written fresh and not left as a file pointer.",
+      "expectations": [
+        "Distinguishes the unbounded scheduler loop from the bounded acceptance loop",
+        "Names the visibility mechanism (heartbeat and ledger)",
+        "Delivers the launch prompt in full, with the working directory above it"
+      ]
+    },
+    {
+      "id": 26,
+      "prompt": "活太多了一个 agent 干不完，怎么分给不同 agent？",
+      "expected_output": "Walks the decision path: is the work dispatchable at all (undecided design stops it), which class it falls into (one contiguous area, several unrelated areas, or tightly coupled across sides), then proposes the formation — trees with disjoint write scopes, batching and checkpoints, and the roles that cover the work nobody owns (reviewer, acceptance, scout) — and says who decides what (trees and sessions need the user's approval; the scheduler may propose and record).",
+      "expectations": [
+        "Runs the dispatchability check before splitting",
+        "Proposes trees with disjoint write scopes and names the tree-opening approval",
+        "Covers the roles that own the unowned work, and what a delegate may write"
       ]
     }
   ]
