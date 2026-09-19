@@ -18,6 +18,15 @@ needs a `## Batch report`, and the validator rejects more than it used to.
 
 ### Added
 
+- **The human contract (§0c)**: the workflow's point is spending the human's time on decisions, so joining and
+  leaving are both free. The human does three things - give the goal, rule, accept - and the return surface is the
+  ledgers (the "what needs you" section, the approval queue, the newest checkpoints), not the chat log. Questions
+  that genuinely need a human are batched into one place with option, cost, recommendation and the consequence of
+  not deciding; anything the scheduler can decide, it decides. Work never stalls while the human is away, and
+  reading costs one screen, with detail left in files. Both READMEs now name the human cost under the problems
+  they fix, and an eval case covers the "I am leaving for a few hours" request.
+
+
 - **Checkpoints are for mid-course acceptance**: the purpose is now stated as a rule rather than implied by
   "inspection window" - the user should not have to wait for everything to finish before verifying something and
   giving new decisions. Each order that closes something user-visible gets its own checkpoint
