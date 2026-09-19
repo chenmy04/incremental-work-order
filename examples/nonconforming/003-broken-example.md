@@ -9,6 +9,8 @@ forbidden: ["vendor/**", "release/**"]
 ruling: R-0003
 terminal: ["PARSER_MOVE_DONE", "PARSER_MOVE_PARTIAL"]
 waive: []
+parallelism: "none"
+parallelism_reason: "single file plus its two importers — one writer, splitting would collide"
 ---
 
 ## Objective

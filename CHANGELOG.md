@@ -7,7 +7,32 @@ invalidates an existing order, charter or ledger, or that changes what a conform
 
 ## [Unreleased]
 
+### Added
+
+- **`parallelism` must be declared, and cross-checks exist** (driven by a live queue review; the measurements are
+  from a real run, no project details). An omitted or empty `parallel_units` list used to mean "single-threaded"
+  silently - in one queue **64 of 81 orders carried an empty list**, so executors were locked to one thread and
+  nobody had decided it. An order must now either list real `parallel_units` or declare
+  `parallelism: "none"` with a `parallelism_reason`. The validator also gained four cross-checks: duplicate ids in
+  one set, `depends_on` entries that resolve neither to a local order nor to a pinned external condition,
+  **overlapping `write_paths` between two orders** (at least one side must declare `serialize_with`; this used to
+  be kept in prose), and `--manifest` reconciliation. Declarations are advisory by default and hard failures under
+  `--strict`, so a running queue stays workable while batch close and merge cannot pass.
+- **`revisions` records**: an order whose body claims a revision (`修订 v2`, `Revision 2`) must carry
+  `revisions: [{"at": <sha>, "what": ..., "after_stage": N, "ruling": R-xxxx}]`. Instructing notes about revisions
+  (a template telling the executor what to record) are not claims and do not trip it.
+- **`## Batch report`** closes a batch: gate counts, exit codes, evidence index, remaining gaps.
+- **`--legacy-ok`** keeps a pre-v2 queue workable; the rule that replaces the exemption is that an order touched
+  again (revised, re-dispatched, split) must be upgraded to the current template.
+- **Two documents**: `SKILL.md` §0b states the division of labour (the scheduler gets a menu and may deviate with a
+  reason; the executor gets constraints), §12 lists the optional roles and loop shapes, §13 is the
+  self-optimisation loop (find a rule that does not fit, record it with evidence, ask the user, then change the
+  skill through its normal process). `references/roles-and-loops.md` is the checklist for opening a role.
+- **File names** accept `NNN-slug.md` (two to four digits), split siblings (`096a-...`) and line prefixes
+  (`P41a-...`), because a real line with prefixed order names could not run the validator at all.
+
 ### Fixed
+
 
 - **The shipped work-order template was still v1** while `SKILL.md` required the v2 format: no frontmatter, no
   `Requirements`/`Scenario`, plain-number stages, and headings (`Exact scope`, `Definitions of Done`) the

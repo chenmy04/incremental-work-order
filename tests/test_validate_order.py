@@ -34,6 +34,8 @@ forbidden: ["release/**"]
 ruling: R-0001
 terminal: ["PROBE_DONE", "PROBE_PARTIAL"]
 waive: []
+parallelism: "none"
+parallelism_reason: "单文件串行，拆不开"
 ---
 
 ## Objective
@@ -72,6 +74,11 @@ pytest -q
 
 ## Acceptance
 - PROBE_DONE
+
+## Batch report
+- 门：G1 1/1 绿；退出码：0
+- 证据：docs/evidence/probe.json
+- 缺口：无
 """
 
 
@@ -121,15 +128,82 @@ class OrderRules(unittest.TestCase):
         self.assertTrue(must_mention(problems, "*_DONE")[0], problems)
 
     def test_parallel_units_must_be_a_list_of_strings(self):
-        problems = check("001-probe.md", BASE.replace("waive: []", 'waive: []\nparallel_units: ["unit-a", 7]'))
+        problems = check("001-probe.md", BASE.replace('parallelism: "none"', 'parallel_units: ["unit-a", 7]'))
         self.assertTrue(must_mention(problems, "parallel_units")[0], problems)
 
     def test_parallel_units_must_be_unique(self):
-        problems = check("001-probe.md", BASE.replace("waive: []", 'waive: []\nparallel_units: ["unit-a", "unit-a"]'))
+        problems = check("001-probe.md", BASE.replace('parallelism: "none"', 'parallel_units: ["unit-a", "unit-a"]'))
         self.assertTrue(must_mention(problems, "must be unique")[0], problems)
 
-    def test_parallel_units_are_optional(self):
-        self.assertEqual(check("001-probe.md", BASE.replace("waive: []", 'waive: []\nparallel_units: ["unit-a"]')), [])
+    def test_parallel_units_non_empty_is_accepted(self):
+        text = BASE.replace('parallelism: "none"\nparallelism_reason: "单文件串行，拆不开"', 'parallel_units: ["unit-a"]')
+        self.assertEqual(check("001-probe.md", text), [])
+
+    # --- declaration checks (2026-09-19: silent single-threading was the defect) ---
+    def test_missing_parallel_declaration_is_refused_under_strict(self):
+        text = BASE.replace('parallelism: "none"\nparallelism_reason: "单文件串行，拆不开"\n', "")
+        problems = check("001-probe.md", text)
+        self.assertTrue(must_mention(problems, "declare parallelism explicitly")[0], problems)
+
+    def test_empty_parallel_units_without_declaration_is_refused_under_strict(self):
+        text = BASE.replace('parallelism: "none"\nparallelism_reason: "单文件串行，拆不开"', "parallel_units: []")
+        problems = check("001-probe.md", text)
+        self.assertTrue(must_mention(problems, "declare parallelism explicitly")[0], problems)
+
+    def test_parallelism_none_without_reason_is_refused(self):
+        problems = check("001-probe.md", BASE.replace('parallelism_reason: "单文件串行，拆不开"', "parallelism_reason: \"\""))
+        self.assertTrue(must_mention(problems, "non-empty parallelism_reason")[0], problems)
+
+    def test_advisory_tier_keeps_a_live_queue_workable(self):
+        """Outside --strict the same order only warns (exit 0), so a running queue is not blocked."""
+        text = BASE.replace('parallelism: "none"\nparallelism_reason: "单文件串行，拆不开"\n', "")
+        problems = check("001-probe.md", text, strict=False)
+        self.assertEqual(len(problems), 1)
+        self.assertTrue(problems[0].startswith("WARN: "), problems)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "001-probe.md"
+            path.write_text(text, encoding="utf-8")
+            result = subprocess.run([sys.executable, str(VALIDATOR), str(path)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("WARN", result.stdout)
+
+    def test_revision_mention_without_records_is_refused_under_strict(self):
+        text = BASE.replace("## Objective\n做一件事。", "## Objective\n做一件事。修订 v2：改了做法。")
+        problems = check("001-probe.md", text)
+        self.assertTrue(must_mention(problems, "no `revisions` record")[0], problems)
+
+    def test_instructing_note_about_revisions_is_not_a_claim(self):
+        """A template telling the executor what to record must not trip the check."""
+        text = BASE.replace("## Acceptance", "## Notes for the executor\n- 纳入修订后在本树 status 记 `已纳入 work order <NNN> 修订 @<sha>`。\n\n## Acceptance")
+        self.assertEqual(check("001-probe.md", text), [])
+
+    def test_revisions_records_are_accepted(self):
+        text = BASE.replace('waive: []', 'waive: []\nrevisions: [{"at": "abc1234", "what": "改为按家并行", "after_stage": 2, "ruling": "R-0021"}]')
+        text = text.replace("## Objective\n做一件事。", "## Objective\n做一件事。修订 v2：改了做法。")
+        self.assertEqual(check("001-probe.md", text), [])
+
+    def test_revision_entry_without_sha_is_refused(self):
+        text = BASE.replace('waive: []', 'waive: []\nrevisions: [{"what": "改了做法"}]')
+        problems = check("001-probe.md", text)
+        self.assertTrue(must_mention(problems, "needs both 'at'")[0], problems)
+
+    # --- file naming: split siblings and line prefixes -------------------------
+    def test_split_sibling_name_is_accepted(self):
+        text = BASE.replace("id: 001", "id: 096a").replace("slug: probe", "slug: thinking-on")
+        self.assertEqual(check("096a-thinking-on.md", text), [])
+
+    def test_line_prefixed_name_is_accepted(self):
+        text = BASE.replace("id: 001", "id: P41a").replace("slug: probe", "slug: harness-prefix")
+        self.assertEqual(check("P41a-harness-prefix.md", text), [])
+
+    def test_legacy_order_without_frontmatter_needs_the_flag(self):
+        legacy = "# Work order 37\n\n做一件事。\n"
+        self.assertTrue(must_mention(check("037-old.md", legacy), "legacy order")[0])
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "037-old.md"
+            path.write_text(legacy, encoding="utf-8")
+            problems, _ = vo.validate_one(path, True, True)
+        self.assertEqual(problems, [])
 
     # --- sections and waivers --------------------------------------------------
     def test_missing_section_is_a_problem(self):
@@ -204,6 +278,68 @@ class BatchGate(unittest.TestCase):
 
     def test_ticked_batch_is_accepted(self):
         result = self.run_batch(BASE.replace("- [ ]", "- [x]"))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_batch_close_needs_a_batch_report(self):
+        text = BASE.replace("- [ ]", "- [x]")
+        head, _, _ = text.partition("## Batch report")
+        result = self.run_batch(head)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Batch report", result.stdout)
+
+
+class CrossChecks(unittest.TestCase):
+    """Directory-level rules: id collisions, depends_on resolution, write_paths overlap."""
+
+    def run_dir(self, orders: dict[str, str], *extra: str):
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, text in orders.items():
+                (Path(tmp) / name).write_text(text, encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(VALIDATOR), tmp, "--strict", *extra],
+                capture_output=True, text=True,
+            )
+
+    def second(self, write_paths: str = '["other/**"]'):
+        return (
+            BASE.replace("id: 001", "id: 002")
+            .replace("slug: probe", "slug: other")
+            .replace('write_paths: ["src/**"]', f"write_paths: {write_paths}")
+            .replace("batch: b1", "batch: b2")
+        )
+
+    def test_duplicate_ids_in_one_directory_are_refused(self):
+        text = BASE.replace("slug: probe", "slug: probe-two")
+        result = self.run_dir({"001-probe.md": BASE, "001-probe-two.md": text})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("duplicate order id", result.stdout)
+
+    def test_overlapping_write_paths_without_serialize_with_are_refused(self):
+        result = self.run_dir({"001-probe.md": BASE, "002-other.md": self.second('["src/parser/**"]')})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("declare `serialize_with`", result.stdout)
+
+    def test_serialize_with_clears_the_overlap(self):
+        other = self.second('["src/parser/**"]').replace("waive: []", 'waive: []\nserialize_with: ["001"]')
+        result = self.run_dir({"001-probe.md": BASE, "002-other.md": other})
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_non_overlapping_write_paths_pass(self):
+        result = self.run_dir({"001-probe.md": BASE, "002-other.md": self.second()})
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unresolvable_depends_on_is_refused(self):
+        other = self.second().replace("depends_on: []", 'depends_on: [{"order": "099", "condition": "等它落地"}]')
+        result = self.run_dir({"001-probe.md": BASE, "002-other.md": other})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("resolves neither", result.stdout)
+
+    def test_depends_on_a_named_tree_is_accepted(self):
+        other = self.second().replace(
+            "depends_on: []",
+            'depends_on: [{"order": "105", "condition": "in the backend tree, merged as abc1234"}]',
+        )
+        result = self.run_dir({"001-probe.md": BASE, "002-other.md": other})
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 

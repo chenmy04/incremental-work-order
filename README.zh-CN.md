@@ -101,9 +101,10 @@ git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/
 | `assets/executor-goal-prompt.md` | ≤15 行启动提示词 |
 | `assets/prefs-template.md` | 偏好账（执行模式、批准胃口、节奏、成本上限） |
 | `assets/status-template.md` | 执行账格式，含 §Questions 通道 |
-| `scripts/validate_order.py` | 结构校验器：`--strict`、`--batch <名>`（批次门要求阶段复选框全勾） |
+| `scripts/validate_order.py` | 结构校验器：`--strict`、`--batch <名>`（批次门要求阶段复选框全勾 + `## Batch report` 齐全）、`--legacy-ok`（旧队列）、`--manifest`（对账） |
 | `references/initialization-checklist.md` | 初始化建什么、不建什么 |
 | `references/false-green-checklist.md` | 假绿的七种形态 + 三个真实案例 |
+| `references/roles-and-loops.md` | 开角色、换循环前的自查清单 |
 | `evals/evals.json` | 18 条行为用例（放在仓库里，不随 skill 分发） |
 | `examples/` | 合规 / 未完工 / 不合规 三张单，CI 靠它们证明门有牙 |
 
@@ -123,9 +124,11 @@ git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/
 9. 合并一次一个、在主树重验，批准人、冲突、摘要、回滚路径都要写下来。**批准绑定检查点的 commit sha**
    而不是它所在的分支——执行者不会停，分支会往前跑，而批准不会。若批准之后主树自己动过，先重新核集成条件。
 10. 规则只有一份，别处只引用。
-12. 执行者**只能在调度者声明的独立单元**（`parallel_units`）之间开子代理并行：**深度 ≤1、同时在跑 ≤4**，
-    而且**子代理不是写者**——它们只产出改动，不碰契约、不碰账本、不跑 git；提交、勾阶段、跑门、记账
-    都由执行者本人完成（同一 worktree 多写者，正是这套流程已经修掉的暂存区交错缺陷）。
+12. 每张单都**必须显式声明并行度**：给非空的 `parallel_units` 列表，或写 `parallelism: "none"` 加理由
+    （空列表/缺省曾静默等于单线程——真实队列上量到 81 张单里 64 张是空列表）。执行者**只能在声明出来的单元**之间
+    开子代理：**深度 ≤1、同时在跑不超过项目记录的上限**，而且**子代理不是写者**——它们只产出改动，不碰契约、
+    不碰账本、不跑 git；提交、勾阶段、跑门、记账都由执行者本人完成（同一 worktree 多写者，正是这套流程
+    已经修掉的暂存区交错缺陷）。
 11. 调度侧的规则是**默认值**不是镣铐：先查 `prefs.md`，问一次就记下来，偏离要写 `waive` 理由；
     执行侧相反要**严**——固定工单格式、WHEN/THEN 场景、复选框阶段、结构校验器，因为没人跟执行者直接对话。
 

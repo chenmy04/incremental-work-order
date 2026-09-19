@@ -1,7 +1,8 @@
 # Work Order <NNN> — <one concrete outcome>
 
 > 契约权威就是这个文件（在**执行树**的 `docs/implementation/work-orders/` 下）。
-> 文件名必须是 `NNN-slug.md`；frontmatter 里的列表值是 **JSON**（校验器不依赖 YAML 库）。
+> 文件名：`NNN-slug.md`（2–4 位数字）/ 拆分出的兄弟 `NNNa-slug.md` / 带线前缀 `P41a-slug.md`；
+> frontmatter 里的列表值是 **JSON**（校验器不依赖 YAML 库——`[086]` 这类带前导零的写法**不是合法 JSON**，会被拒）。
 > 收口后移到 `work-orders/archive/<YYYY-MM-DD>-NNN-slug.md`（活跃队列保持干净）。
 > **投递方式**（调度者）：`git -C <子树> add -N -- <本文件>` 然后
 > `git -C <子树> commit -m "dispatch work order <NNN> (from <主树> @<sha>)" -- <本文件>`——
@@ -19,7 +20,14 @@ forbidden: ["release/**"]
 ruling: R-0007
 terminal: ["PARSER_MOVE_DONE", "PARSER_MOVE_PARTIAL"]
 waive: []
-parallel_units: []                   # 可选：调度者交底的独立单元；执行者只能在这些单元之间开子代理
+parallel_units: ["unit-a: src/parser/** — 独立于 unit-b", "unit-b: src/render/** — 只读 unit-a 的公开接口"]
+# 或者拆不开就这么写（二者必居其一，空列表或缺省会被校验器点名）：
+# parallelism: "none"
+# parallelism_reason: "全部改动落在同一文件，串行更快"
+# 与另一张在跑的单写权重叠时必须声明（校验器会查 write_paths 交叠）：
+# serialize_with: ["092"]
+# 正文写了"修订"就必须有记录：
+# revisions: [{"at": "abc1234", "what": "改为按家并行", "after_stage": 2, "ruling": "R-0021"}]
 ---
 ```
 
@@ -82,13 +90,15 @@ after/
 
 ## Parallel units
 
-<可选，但**写了就等于授权并行**：列出互不相干的单元，每项写"独立于谁、为什么"。执行者只能在这些单元之间
-开子代理；没写就单线程做，或说明为什么拆不开。例如：>
+**必居其一**：① 列出互不相干的单元（每项写"独立于谁、为什么"）＝**授权并行**；② 或写
+`parallelism: "none"` + `parallelism_reason`。**空列表或不写会被校验器点名**——实测教训：一条真实队列里
+81 张单有 64 张是空列表，执行者的并行被静默关掉而我们毫不知情。
 
 - `unit-a`：`src/parser/**` —— 与 `unit-b` 无共享文件、无共同调用方
 - `unit-b`：`src/render/**` —— 只读 `unit-a` 的公开接口，接口本单不改
 
 > 子代理**不写契约、不写本树 status、不跑任何 git 写操作**；提交、勾阶段、跑门都由执行者自己做。
+> 子代理数量上限由**项目 prefs**（调度者与用户商议后写定）约束，执行者必须遵守。
 
 ## Gates
 
@@ -130,6 +140,15 @@ git diff --check && git status --short
   主树合并时按**这个 tag 指向的 commit sha** 合（`git merge --no-ff <sha>`），**不是**按会继续移动的分支。
 - 自检：`python3 <skill>/scripts/validate_order.py . --strict`；
   批次收口/合并前：`--batch <批次名> --strict`（阶段复选框全勾才通过）。
+
+## Batch report（批末必写；`--batch <批次名> --strict` 会检查这一节齐全）
+
+```text
+门：G1 x/x 绿，G2 x/x 绿          ← 门计数（跑了几条、过了几条）
+退出码：pytest -q → 0             ← 回归命令与退出码，不写"应该没问题"
+证据：docs/evidence/<...>.json    ← 证据索引（文件路径，不粘贴内容）
+缺口：无 / 逐条列出未验部分        ← PARTIAL 时必写
+```
 
 ## Checkpoint report（批末写进本树 `status.md` 的格式）
 
