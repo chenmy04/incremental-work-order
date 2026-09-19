@@ -4,9 +4,10 @@
     {
       "id": 1,
       "prompt": "这个仓库还没有调度系统。按 incremental-work-order 初始化。",
-      "expected_output": "Builds only the main-tree scheduling set (README with the rules, manifest with empty orders and executors, status with a measured baseline, rulings with the first ruling, the shared executor charter), records a pointer instead of creating a project plan when one already exists, does not touch AGENTS.md, commits with explicit paths, and then stops to ask what the user wants - offering one or two candidates read out of the measurement.",
+      "expected_output": "Builds only the main-tree scheduling set (README with the rules, manifest with empty orders and executors, status with a measured baseline, rulings with the first ruling, the shared executor charter, and the prefs ledger with known preferences filled and the rest left at their defaults), records a pointer instead of creating a project plan when one already exists, does not touch AGENTS.md, commits with explicit paths, and then stops to ask what the user wants - offering one or two candidates read out of the measurement.",
       "expectations": [
-        "Creates exactly the main-tree set, with orders and executors empty",
+        "Creates exactly the main-tree set (six files), with orders and executors empty",
+        "Creates the prefs ledger from assets/prefs-template.md, leaving unknown preferences at their defaults",
         "Writes a measured baseline (commit, build or test counts and exit codes) rather than a guess",
         "Reuses an existing planning document by pointer instead of creating a second plan",
         "Does not create a worktree, an order, or a per-tree document"

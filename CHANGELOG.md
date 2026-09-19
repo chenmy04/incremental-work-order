@@ -64,6 +64,11 @@ needs a `## Batch report`, and the validator rejects more than it used to.
   without its own `Scenario` passed; `waive` entries listing a section without a reason passed.
 - A variable-shadowing bug introduced while fixing the waive check (a loop variable named `text` clobbered the
   document text), caught by the new per-rule tests.
+- **The initialisation checklists disagreed on whether `prefs.md` exists at init.** `SKILL.md` §2 said "只建
+  那五样" and `GETTING-STARTED.md`'s step-1 prompt and eval 1 followed it, while
+  `references/initialization-checklist.md` (the text §2 points at) and both README quickstarts build six —
+  including `prefs.md`, which §1b/§1c/§4b/§10 treat as load-bearing (execution mode, consult-first, cost cap).
+  Unified on six files.
 
 ### Added
 
