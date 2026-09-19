@@ -147,21 +147,20 @@ Requires Python 3.7 or newer (CI runs 3.12): the validator uses `from __future__
    recommendation; anything the scheduler can decide itself, it decides (`SKILL.md` §0c).
 9. PARTIAL is respectable and mergeable — provided the tree is green, the merged part verifiable, and the
    unverified part is recorded as a known gap.
-9. Merges are one at a time, re-verified on the main tree, with the approval, conflicts, digests and rollback
+10. Merges are one at a time, re-verified on the main tree, with the approval, conflicts, digests and rollback
    path written down. The approval binds to the checkpoint's **commit sha**, not to the branch it lives on —
    the executor keeps working, so the branch moves while the approval does not. If the main tree itself moved
    between approval and merge, the integration conditions are re-checked first.
-10. There is exactly one copy of the rules. Everything else references it.
+11. There is exactly one copy of the rules. Everything else references it.
 12. Every order declares its parallelism one way or the other: a non-empty `parallel_units` list, or
     `parallelism: "none"` with a reason (an empty or omitted list silently meant single-threaded — measured on a
     live queue: 64 of 81 orders). Executors then fan out subagents **only inside the declared units**, at depth
     one and within the number the project recorded, and never as writers: subagents produce file changes, while
     the executor alone commits, ticks stages, runs the gates and records their cost, because one worktree with
     several writers is the staging-area race this workflow already fixed.
-11. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
+13. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
     may deviate with a written `waive` reason. The executor's side is strict instead — a fixed order format with
     WHEN/THEN scenarios, checkbox stages and a validator — because nobody talks to an executor directly.
-
 ## What it deliberately does not do
 
 - No session spawning — an agent cannot open a session; the human pastes the launch prompt. (If your environment
