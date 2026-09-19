@@ -60,8 +60,9 @@ claude plugin marketplace add mmm-05610/incremental-work-order
 claude plugin install incremental-work-order@incremental-work-order
 ```
 
-`claude plugin details incremental-work-order` reports `Skills (1)`, with roughly 150 tokens always-on and
-~1.9k on invoke. `claude plugin update incremental-work-order` picks up new releases.
+`claude plugin details incremental-work-order` reports `Skills (1)`. Loading stays proportional: only the
+name and description are resident; the full `SKILL.md` loads when the skill triggers.
+`claude plugin update incremental-work-order` picks up new releases.
 
 **2. The install script** — any agent, no dependencies beyond git and a POSIX shell:
 
@@ -140,11 +141,11 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
    the executor keeps working, so the branch moves while the approval does not. If the main tree itself moved
    between approval and merge, the integration conditions are re-checked first.
 10. There is exactly one copy of the rules. Everything else references it.
-12. Executors may fan out subagents **only inside the independent units the scheduler declared** (`parallel_units`),
+11. Executors may fan out subagents **only inside the independent units the scheduler declared** (`parallel_units`),
     at depth one and at most four at a time — and never as writers. Subagents produce file changes; they do not
     touch the contract, the ledger or git. The executor alone commits, ticks stages, runs the gates and records
     their cost, because one worktree with several writers is the staging-area race this workflow already fixed.
-11. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
+12. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
     may deviate with a written `waive` reason. The executor's side is strict instead — a fixed order format with
     WHEN/THEN scenarios, checkbox stages and a validator — because nobody talks to an executor directly.
 

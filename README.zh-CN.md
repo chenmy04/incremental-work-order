@@ -53,8 +53,8 @@ claude plugin marketplace add mmm-05610/incremental-work-order
 claude plugin install incremental-work-order@incremental-work-order
 ```
 
-`claude plugin details incremental-work-order` 会报 `Skills (1)`，常驻约 150 token、触发时约 1.9k；
-`claude plugin update incremental-work-order` 跟新版本。
+`claude plugin details incremental-work-order` 会报 `Skills (1)`。加载保持按需：常驻的只有名称与描述，
+触发时才加载完整 `SKILL.md`；`claude plugin update incremental-work-order` 跟新版本。
 
 **2. 安装脚本**——任何 agent，除 git 与 POSIX shell 外无依赖：
 
@@ -95,7 +95,7 @@ git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/
 | --- | --- |
 | `SKILL.md` | 调度者的规则——整套模型都在这一个文本里 |
 | `GETTING-STARTED.md` | 给人看的上手（五步） |
-| `assets/work-order-template.md` | 工单骨架（JSON frontmatter、WHEN/THEN 场景、复选框 Stages、门三列） |
+| `assets/work-order-template.md` | 工单骨架（JSON frontmatter、WHEN/THEN 场景、复选框 Stages、门四列） |
 | `assets/worktree-charter-template.md` | 每棵树的章程（范围、写权、切片、批次） |
 | `assets/executor-charter.md` | 执行者纪律 |
 | `assets/executor-goal-prompt.md` | ≤15 行启动提示词 |
@@ -123,10 +123,10 @@ git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/
 9. 合并一次一个、在主树重验，批准人、冲突、摘要、回滚路径都要写下来。**批准绑定检查点的 commit sha**
    而不是它所在的分支——执行者不会停，分支会往前跑，而批准不会。若批准之后主树自己动过，先重新核集成条件。
 10. 规则只有一份，别处只引用。
-12. 执行者**只能在调度者声明的独立单元**（`parallel_units`）之间开子代理并行：**深度 ≤1、同时在跑 ≤4**，
+11. 执行者**只能在调度者声明的独立单元**（`parallel_units`）之间开子代理并行：**深度 ≤1、同时在跑 ≤4**，
     而且**子代理不是写者**——它们只产出改动，不碰契约、不碰账本、不跑 git；提交、勾阶段、跑门、记账
     都由执行者本人完成（同一 worktree 多写者，正是这套流程已经修掉的暂存区交错缺陷）。
-11. 调度侧的规则是**默认值**不是镣铐：先查 `prefs.md`，问一次就记下来，偏离要写 `waive` 理由；
+12. 调度侧的规则是**默认值**不是镣铐：先查 `prefs.md`，问一次就记下来，偏离要写 `waive` 理由；
     执行侧相反要**严**——固定工单格式、WHEN/THEN 场景、复选框阶段、结构校验器，因为没人跟执行者直接对话。
 
 ## 明确不做

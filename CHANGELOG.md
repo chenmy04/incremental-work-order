@@ -20,6 +20,13 @@ invalidates an existing order, charter or ledger, or that changes what a conform
   without its own `Scenario` passed; `waive` entries listing a section without a reason passed.
 - A variable-shadowing bug introduced while fixing the waive check (a loop variable named `text` clobbered the
   document text), caught by the new per-rule tests.
+- **Docs cross-check fixes** (no behaviour change): the code fence in `AGENTS.md` swallowed half the file
+  (the optional `claude plugin validate` comment now sits inside the block); the one-screen rule list in both
+  READMEs ran 10 → 12 → 11; the install section's token counts had gone stale as `SKILL.md` grew and now state
+  the loading model instead; the prose said Gates 三列 in five places while the validator and template require
+  four columns (gate name / assertion / counter-example / absent); `assets/prefs-template.md` declared a
+  four-column row format under a three-column header and carried one stray date cell; `SKILL.md` §3.4's
+  self-check path gained the `<skill>/` prefix the executor notes already use.
 
 ### Added
 
