@@ -265,6 +265,17 @@
         "Proposes trees with disjoint write scopes and names the tree-opening approval",
         "Covers the roles that own the unowned work, and what a delegate may write"
       ]
+    },
+    {
+      "id": 27,
+      "prompt": "我不想等 agent 把一切都做完再看——现在有能试的东西吗？我想边看边给新主意。",
+      "expected_output": "Treats that as the normal mode of operation rather than an interruption: a checkpoint is tagged whenever a user-visible order closes (not only at a batch end), its report says what the user can try right now, what is deliberately not in yet, and the known defects, and the scheduler's roll-up lists each tree's newest checkpoint with its distance from HEAD so staleness is visible. The user's mid-course remarks become ordinary input - new orders, re-prioritisation, a stop - without waiting for a batch to close, and none of it makes the executor pause.",
+      "expectations": [
+        "States that checkpoints exist so acceptance can happen mid-flight",
+        "Requires a checkpoint per closed user-visible order, in addition to batch checkpoints",
+        "Requires the checkpoint report to name what can be tried now and what is not in yet",
+        "Surfaces each tree's newest checkpoint and its distance from HEAD, and back-fills when stale"
+      ]
     }
   ]
 }

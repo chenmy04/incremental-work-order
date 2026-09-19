@@ -94,7 +94,9 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
    check, cuts it into ordered work orders, and delivers the first one into a tree.
 3. **Open a tree and start an executor** (both need you): approve the tree proposal, then paste the launch prompt
    the scheduler hands you *in full* into a new session whose working directory is that sub-tree.
-4. **Inspect whenever you like** — `git -C <subtree> tag -l 'checkpoint/*'` and read that tree's
+4. **Inspect whenever you like** — checkpoints exist so you can accept a slice mid-flight and steer from what you
+   see, not only after everything lands: each user-visible order that closes gets its own tag, the scheduler's
+   roll-up lists every tree's newest checkpoint with its distance from HEAD, and `git -C <subtree> tag -l 'checkpoint/*'` plus that tree's
    `docs/implementation/status.md` (what to try / what needs your ruling / what was spent / where to resume).
    Try the thing it says works; that is where new problems come from.
 5. **Merge at a batch end** — the scheduler proposes (naming the checkpoint tag *and* the commit sha you are

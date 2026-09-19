@@ -18,6 +18,15 @@ needs a `## Batch report`, and the validator rejects more than it used to.
 
 ### Added
 
+- **Checkpoints are for mid-course acceptance**: the purpose is now stated as a rule rather than implied by
+  "inspection window" - the user should not have to wait for everything to finish before verifying something and
+  giving new decisions. Each order that closes something user-visible gets its own checkpoint
+  (`checkpoint/<batch>-<order>`), batch checkpoints stay as they were, the report must name what can be tried now,
+  what is deliberately not in yet and the known defects, and the scheduler's roll-up lists each tree's newest
+  checkpoint with its distance from HEAD so a stale window is visible instead of silent. A checkpoint still never
+  stops the executor; an eval case covers the "I want to look now and give new direction" request.
+
+
 - **Entry path**: the trigger text now names planning, splitting work across several agents or sessions,
   supervising a long-running loop, resuming unfinished work and wanting independent eyes, in both languages.
   `SKILL.md` §0a states that selecting the skill makes the session the scheduler and gives the first-round
