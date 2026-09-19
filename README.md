@@ -11,9 +11,13 @@ are *inspection windows*, not stops; merges back are approval-gated and re-verif
 
 Long-running agent work fails in predictable ways: the plan lives in chat and evaporates; the executor invents
 product decisions it had no mandate for; gates go green without proving anything; parallel worktrees fan out and
-never merge back; and "done" turns out to be unverified.
+never merge back; and "done" turns out to be unverified. Underneath all five sits the human cost: **you end up as
+the machine's pusher** - every step needs you back at the keyboard, so the expensive part of your day goes to
+relaying instead of deciding.
 
-This skill is a **repository-backed dispatch process** that fixes those five things.
+This skill is a **repository-backed dispatch process** that fixes those five things, and its point is to spend your
+time on decisions: you give the goal, rule on what needs ruling, and inspect a slice whenever you like - then you
+can walk away and come back without a hand-over ceremony (see `SKILL.md` §0c).
 
 ## The model
 
@@ -67,7 +71,7 @@ name and description are resident; the full `SKILL.md` loads when the skill trig
 **2. The install script** — any agent, no dependencies beyond git and a POSIX shell:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.1.0
+curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.2.0
 ```
 
 or from a clone: `./install.sh --target ~/.claude/skills`, `./install.sh --from . --copy`,
@@ -77,7 +81,7 @@ or from a clone: `./install.sh --target ~/.claude/skills`, `./install.sh --from 
 **3. Manual** — one command, pin a release:
 
 ```bash
-git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
+git clone --branch v0.2.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
 ```
 
 Works with any agent that reads `SKILL.md` files and can run git; the launch prompt assumes a `/goal`-style
@@ -95,7 +99,9 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
    check, cuts it into ordered work orders, and delivers the first one into a tree.
 3. **Open a tree and start an executor** (both need you): approve the tree proposal, then paste the launch prompt
    the scheduler hands you *in full* into a new session whose working directory is that sub-tree.
-4. **Inspect whenever you like** — `git -C <subtree> tag -l 'checkpoint/*'` and read that tree's
+4. **Inspect whenever you like** — checkpoints exist so you can accept a slice mid-flight and steer from what you
+   see, not only after everything lands: each user-visible order that closes gets its own tag, the scheduler's
+   roll-up lists every tree's newest checkpoint with its distance from HEAD, and `git -C <subtree> tag -l 'checkpoint/*'` plus that tree's
    `docs/implementation/status.md` (what to try / what needs your ruling / what was spent / where to resume).
    Try the thing it says works; that is where new problems come from.
 5. **Merge at a batch end** — the scheduler proposes (naming the checkpoint tag *and* the commit sha you are
@@ -112,12 +118,16 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
 | `assets/worktree-charter-template.md` | The per-tree charter (scope, write rights, slice, batches) |
 | `assets/executor-charter.md` | The executor's discipline |
 | `assets/executor-goal-prompt.md` | The ≤15-line launch prompt |
+| `assets/role-goal-prompts.md` | Launch prompts for the optional roles and loops (reviewer, acceptance, scout, scheduler loop) |
 | `assets/prefs-template.md` | The preferences ledger (execution mode, approval appetite, cadence, cost cap) |
 | `assets/status-template.md` | The executor ledger format, including a questions channel |
-| `scripts/validate_order.py` | Structural validator: `--strict`, `--batch <name>` (the merge gate needs every stage box ticked) |
+Requires Python 3.7 or newer (CI runs 3.12): the validator uses `from __future__ import annotations`, which older interpreters reject at parse time.
+
+| `scripts/validate_order.py` | Structural validator: `--strict`, `--batch <name>` (the merge gate needs every stage box ticked and a `## Batch report`), `--legacy-ok` for a pre-v2 queue, `--manifest` reconciliation |
 | `references/initialization-checklist.md` | Exactly what to build at init, and what not to |
 | `references/false-green-checklist.md` | Seven ways a green gate lies, with three worked cases |
-| `evals/evals.json` | Eighteen behavioural test cases (they live here; they are not shipped to consumers) |
+| `references/roles-and-loops.md` | The checklist for opening a role or changing a loop shape |
+| `evals/evals.json` | Twenty-three behavioural test cases (they live here; they are not shipped to consumers) |
 | `examples/` | Conforming, unfinished and non-conforming orders — CI runs all three to prove the gates have teeth |
 
 ## The rules in one screen
@@ -134,21 +144,24 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
    `git add` followed by a bare `git commit`, because the executor shares that index and a bare commit would
    carry its staged files along.
 7. A revision must leave a receipt (`已纳入 work order <N> 修订 @<sha>`) so "did the redirect land" is a fact.
-8. PARTIAL is respectable and mergeable — provided the tree is green, the merged part verifiable, and the
+8. The human's time is the scarcest resource: decisions are batched into one place with option, cost and a
+   recommendation; anything the scheduler can decide itself, it decides (`SKILL.md` §0c).
+9. PARTIAL is respectable and mergeable — provided the tree is green, the merged part verifiable, and the
    unverified part is recorded as a known gap.
-9. Merges are one at a time, re-verified on the main tree, with the approval, conflicts, digests and rollback
+10. Merges are one at a time, re-verified on the main tree, with the approval, conflicts, digests and rollback
    path written down. The approval binds to the checkpoint's **commit sha**, not to the branch it lives on —
    the executor keeps working, so the branch moves while the approval does not. If the main tree itself moved
    between approval and merge, the integration conditions are re-checked first.
-10. There is exactly one copy of the rules. Everything else references it.
-11. Executors may fan out subagents **only inside the independent units the scheduler declared** (`parallel_units`),
-    at depth one and at most four at a time — and never as writers. Subagents produce file changes; they do not
-    touch the contract, the ledger or git. The executor alone commits, ticks stages, runs the gates and records
-    their cost, because one worktree with several writers is the staging-area race this workflow already fixed.
-12. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
+11. There is exactly one copy of the rules. Everything else references it.
+12. Every order declares its parallelism one way or the other: a non-empty `parallel_units` list, or
+    `parallelism: "none"` with a reason (an empty or omitted list silently meant single-threaded — measured on a
+    live queue: 64 of 81 orders). Executors then fan out subagents **only inside the declared units**, at depth
+    one and within the number the project recorded, and never as writers: subagents produce file changes, while
+    the executor alone commits, ticks stages, runs the gates and records their cost, because one worktree with
+    several writers is the staging-area race this workflow already fixed.
+13. The scheduler's rules are defaults, not shackles: it consults `prefs.md`, asks once, records the answer, and
     may deviate with a written `waive` reason. The executor's side is strict instead — a fixed order format with
     WHEN/THEN scenarios, checkbox stages and a validator — because nobody talks to an executor directly.
-
 ## What it deliberately does not do
 
 - No session spawning — an agent cannot open a session; the human pastes the launch prompt. (If your environment

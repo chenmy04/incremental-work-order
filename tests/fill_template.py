@@ -44,6 +44,8 @@ forbidden: ["release/**"]
 ruling: R-0001
 terminal: ["FIXTURE_DONE", "FIXTURE_PARTIAL"]
 waive: []
+parallelism: "none"
+parallelism_reason: "template fixture"
 ---
 ```""",
         body,

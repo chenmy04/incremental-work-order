@@ -15,6 +15,7 @@ This repository *is* a skill (an agent-facing workflow). If you are an agent ask
 ## Before you commit
 
 ```bash
+# requires Python 3.7+ (CI runs 3.12); the validator will not even parse on older interpreters
 python3 -c "import json,pathlib; json.loads(pathlib.Path('evals/evals.json').read_text())"
 python3 -m py_compile scripts/validate_order.py
 python3 -m unittest discover -s tests                                     # per-rule counter-examples

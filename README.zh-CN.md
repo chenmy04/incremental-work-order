@@ -10,9 +10,11 @@
 ## 它解决什么
 
 长期运行的 agent 作业会以几种可预测的方式坏掉：计划只活在聊天里、蒸发掉；执行者替你做产品决策；
-门绿了却什么都没证明；并行的工作树只扩不并；"完成了"其实没验过。
+门绿了却什么都没证明；并行的工作树只扩不并；"完成了"其实没验过。而这五件事底下压着同一个**人的成本**：
+**你会变成机器的人肉推进器**——每走一步都要你回到键盘前，于是你一天里最贵的时间花在"传话"上，而不是决策上。
 
-这套 skill 是一套 **以仓库为权威** 的派工流程，专门修这五件事。
+这套 skill 是一套 **以仓库为权威** 的派工流程，专门修这五件事；它的立意是**把时间还给决策**：
+你给目标、拍该拍的板、想什么时候看就挑一个检查点看——然后可以走开，回来也不用交接仪式（见 `SKILL.md` §0c）。
 
 ## 模型
 
@@ -59,7 +61,7 @@ claude plugin install incremental-work-order@incremental-work-order
 **2. 安装脚本**——任何 agent，除 git 与 POSIX shell 外无依赖：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.1.0
+curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.2.0
 ```
 
 从克隆目录跑也行：`./install.sh --target ~/.claude/skills`、`./install.sh --from . --copy`、
@@ -69,7 +71,7 @@ curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/ma
 **3. 手动**——一条命令，钉住一个 release：
 
 ```bash
-git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
+git clone --branch v0.2.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
 ```
 
 只要能读 `SKILL.md`、能跑 git 的 agent 都行；启动提示词假设有 `/goal` 这类长期会话入口。
@@ -99,11 +101,13 @@ git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/
 | `assets/worktree-charter-template.md` | 每棵树的章程（范围、写权、切片、批次） |
 | `assets/executor-charter.md` | 执行者纪律 |
 | `assets/executor-goal-prompt.md` | ≤15 行启动提示词 |
+| `assets/role-goal-prompts.md` | 可选角色与循环的启动提示词（审阅者/验收/侦察者/调度者循环） |
 | `assets/prefs-template.md` | 偏好账（执行模式、批准胃口、节奏、成本上限） |
 | `assets/status-template.md` | 执行账格式，含 §Questions 通道 |
-| `scripts/validate_order.py` | 结构校验器：`--strict`、`--batch <名>`（批次门要求阶段复选框全勾） |
+| `scripts/validate_order.py` | 结构校验器：`--strict`、`--batch <名>`（批次门要求阶段复选框全勾 + `## Batch report` 齐全）、`--legacy-ok`（旧队列）、`--manifest`（对账） |
 | `references/initialization-checklist.md` | 初始化建什么、不建什么 |
 | `references/false-green-checklist.md` | 假绿的七种形态 + 三个真实案例 |
+| `references/roles-and-loops.md` | 开角色、换循环前的自查清单 |
 | `evals/evals.json` | 18 条行为用例（放在仓库里，不随 skill 分发） |
 | `examples/` | 合规 / 未完工 / 不合规 三张单，CI 靠它们证明门有牙 |
 
@@ -119,14 +123,18 @@ git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/
    投递用 **pathspec 形式**提交（`git commit -- <路径>`，新文件先 `git add -N`）——**绝不 `git add` 后裸 `git commit`**：
    执行者与你共用同一个暂存区，裸提交会把对方暂存的文件带走。
 7. 修订必须留回执（`已纳入 work order <N> 修订 @<sha>`），让"改向有没有生效"成为事实。
-8. PARTIAL 是可敬的、也可以合——只要该树回归绿、待合部分可验证、未验部分登记为已知缺口。
-9. 合并一次一个、在主树重验，批准人、冲突、摘要、回滚路径都要写下来。**批准绑定检查点的 commit sha**
+8. **人的时间是最稀缺的资源**：需要拍板的攒在一处，每条给「选项 / 代价 / 我的建议 / 不拍的后果」，
+   调度者能自己拍的绝不问（`SKILL.md` §0c）；汇报默认一屏，细节留在文件里。
+9. PARTIAL 是可敬的、也可以合——只要该树回归绿、待合部分可验证、未验部分登记为已知缺口。
+10. 合并一次一个、在主树重验，批准人、冲突、摘要、回滚路径都要写下来。**批准绑定检查点的 commit sha**
    而不是它所在的分支——执行者不会停，分支会往前跑，而批准不会。若批准之后主树自己动过，先重新核集成条件。
-10. 规则只有一份，别处只引用。
-11. 执行者**只能在调度者声明的独立单元**（`parallel_units`）之间开子代理并行：**深度 ≤1、同时在跑 ≤4**，
-    而且**子代理不是写者**——它们只产出改动，不碰契约、不碰账本、不跑 git；提交、勾阶段、跑门、记账
-    都由执行者本人完成（同一 worktree 多写者，正是这套流程已经修掉的暂存区交错缺陷）。
-12. 调度侧的规则是**默认值**不是镣铐：先查 `prefs.md`，问一次就记下来，偏离要写 `waive` 理由；
+11. 规则只有一份，别处只引用。
+12. 每张单都**必须显式声明并行度**：给非空的 `parallel_units` 列表，或写 `parallelism: "none"` 加理由
+    （空列表/缺省曾静默等于单线程——真实队列上量到 81 张单里 64 张是空列表）。执行者**只能在声明出来的单元**之间
+    开子代理：**深度 ≤1、同时在跑不超过项目记录的上限**，而且**子代理不是写者**——它们只产出改动，不碰契约、
+    不碰账本、不跑 git；提交、勾阶段、跑门、记账都由执行者本人完成（同一 worktree 多写者，正是这套流程
+    已经修掉的暂存区交错缺陷）。
+13. 调度侧的规则是**默认值**不是镣铐：先查 `prefs.md`，问一次就记下来，偏离要写 `waive` 理由；
     执行侧相反要**严**——固定工单格式、WHEN/THEN 场景、复选框阶段、结构校验器，因为没人跟执行者直接对话。
 
 ## 明确不做

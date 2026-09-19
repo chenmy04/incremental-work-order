@@ -9,6 +9,8 @@ forbidden: ["vendor/**", "release/**"]
 ruling: R-0003
 terminal: ["FLAG_RENAME_DONE", "FLAG_RENAME_PARTIAL"]
 waive: []
+parallelism: "none"
+parallelism_reason: "single file plus its two importers — one writer, splitting would collide"
 ---
 
 ## Objective

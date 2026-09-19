@@ -27,7 +27,7 @@
 
 ```text
 这个仓库还没有调度系统。按 incremental-work-order 初始化：
-建立 docs/implementation/{README.md, manifest.json, status.md, rulings.md, executor-charter.md}，
+建立 docs/implementation/{README.md, manifest.json, status.md, rulings.md, prefs.md, executor-charter.md}，
 manifest 里 orders 与 executors 都是空的（派单与开树时才填）；rulings.md 第一条记"采用本流程"。
 所有现状事实必须实测（带 文件:行 或实测值）；status.md 首条写实测基线（提交 sha + 跑一次构建/测试的计数与退出码）。
 项目已有计划文档就只记指针、不另建不改它。不改业务代码、不碰 AGENTS.md、只显式 stage 这几个文件并提交。
