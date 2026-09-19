@@ -66,7 +66,7 @@ claude plugin install incremental-work-order@incremental-work-order
 **2. The install script** — any agent, no dependencies beyond git and a POSIX shell:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.1.0
+curl -fsSL https://raw.githubusercontent.com/mmm-05610/incremental-work-order/main/install.sh | sh -s -- --tag v0.2.0
 ```
 
 or from a clone: `./install.sh --target ~/.claude/skills`, `./install.sh --from . --copy`,
@@ -76,7 +76,7 @@ or from a clone: `./install.sh --target ~/.claude/skills`, `./install.sh --from 
 **3. Manual** — one command, pin a release:
 
 ```bash
-git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
+git clone --branch v0.2.0 https://github.com/mmm-05610/incremental-work-order ~/.agents/skills/incremental-work-order
 ```
 
 Works with any agent that reads `SKILL.md` files and can run git; the launch prompt assumes a `/goal`-style
