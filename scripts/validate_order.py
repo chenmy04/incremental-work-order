@@ -51,6 +51,9 @@ Cross-checks (directory mode; hard failures under --strict, advisory otherwise):
   order that is touched again (revised, re-dispatched, split) must be upgraded to
   the current template rather than staying legacy.
 
+Requires Python 3.7 or newer - the `from __future__ import annotations` at the top is a
+parse-time error on older interpreters (measured: 3.6 refuses the file outright).
+
 Exit code 0 = pass, 1 = violations, 2 = usage error.
 """
 from __future__ import annotations

@@ -114,6 +114,8 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
 | `assets/role-goal-prompts.md` | Launch prompts for the optional roles and loops (reviewer, acceptance, scout, scheduler loop) |
 | `assets/prefs-template.md` | The preferences ledger (execution mode, approval appetite, cadence, cost cap) |
 | `assets/status-template.md` | The executor ledger format, including a questions channel |
+Requires Python 3.7 or newer (CI runs 3.12): the validator uses `from __future__ import annotations`, which older interpreters reject at parse time.
+
 | `scripts/validate_order.py` | Structural validator: `--strict`, `--batch <name>` (the merge gate needs every stage box ticked and a `## Batch report`), `--legacy-ok` for a pre-v2 queue, `--manifest` reconciliation |
 | `references/initialization-checklist.md` | Exactly what to build at init, and what not to |
 | `references/false-green-checklist.md` | Seven ways a green gate lies, with three worked cases |

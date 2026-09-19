@@ -10,6 +10,12 @@ invalidates an existing order, charter or ledger, or that changes what a conform
 Breaking for conforming orders: an order must now declare its parallelism and a batch close
 needs a `## Batch report`, and the validator rejects more than it used to.
 
+### Fixed
+
+- **The interpreter floor is now stated**: the validator needs Python 3.7 or newer (it uses
+  `from __future__ import annotations`, which an older interpreter rejects while parsing, before any
+  friendly error could be printed). Found by running it on a host that only had Python 3.6.
+
 ### Added
 
 - **Entry path**: the trigger text now names planning, splitting work across several agents or sessions,
