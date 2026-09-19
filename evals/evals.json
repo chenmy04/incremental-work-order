@@ -45,7 +45,7 @@
     },
     {
       "id": 5,
-      "prompt": "后端要改 wire 合同，前端跟着消费，两边同时派下去吧。",
+      "prompt": "后端要改接口契约，前端跟着消费，两边同时派下去吧。",
       "expected_output": "Recognises the cross-side coupling and refuses to parallelise: the contract is settled first by one order, and only then are the two sides dispatched to consume it.",
       "expectations": [
         "Identifies the shared contract as a single point of truth",

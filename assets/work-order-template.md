@@ -1,7 +1,7 @@
 # Work Order <NNN> — <one concrete outcome>
 
 > 契约权威就是这个文件（在**执行树**的 `docs/implementation/work-orders/` 下）。
-> 文件名：`NNN-slug.md`（2–4 位数字）/ 拆分出的兄弟 `NNNa-slug.md` / 带线前缀 `P41a-slug.md`；
+> 文件名：`NNN-slug.md`（2–4 位数字）/ 拆分出的兄弟 `NNNa-slug.md` / 带线前缀 `A12a-slug.md`；
 > frontmatter 里的列表值是 **JSON**（校验器不依赖 YAML 库——`[086]` 这类带前导零的写法**不是合法 JSON**，会被拒）。
 > 收口后移到 `work-orders/archive/<YYYY-MM-DD>-NNN-slug.md`（活跃队列保持干净）。
 > **投递方式**（调度者）：`git -C <子树> add -N -- <本文件>` 然后

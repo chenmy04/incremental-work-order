@@ -189,12 +189,12 @@ class OrderRules(unittest.TestCase):
 
     # --- file naming: split siblings and line prefixes -------------------------
     def test_split_sibling_name_is_accepted(self):
-        text = BASE.replace("id: 001", "id: 096a").replace("slug: probe", "slug: thinking-on")
-        self.assertEqual(check("096a-thinking-on.md", text), [])
+        text = BASE.replace("id: 001", "id: 012a").replace("slug: probe", "slug: thinking-on")
+        self.assertEqual(check("012a-thinking-on.md", text), [])
 
     def test_line_prefixed_name_is_accepted(self):
-        text = BASE.replace("id: 001", "id: P41a").replace("slug: probe", "slug: harness-prefix")
-        self.assertEqual(check("P41a-harness-prefix.md", text), [])
+        text = BASE.replace("id: 001", "id: A12a").replace("slug: probe", "slug: harness-prefix")
+        self.assertEqual(check("A12a-harness-prefix.md", text), [])
 
     def test_legacy_order_without_frontmatter_needs_the_flag(self):
         legacy = "# Work order 37\n\n做一件事。\n"

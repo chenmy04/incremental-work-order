@@ -38,8 +38,8 @@ invalidates an existing order, charter or ledger, or that changes what a conform
   reason; the executor gets constraints), §12 lists the optional roles and loop shapes, §13 is the
   self-optimisation loop (find a rule that does not fit, record it with evidence, ask the user, then change the
   skill through its normal process). `references/roles-and-loops.md` is the checklist for opening a role.
-- **File names** accept `NNN-slug.md` (two to four digits), split siblings (`096a-...`) and line prefixes
-  (`P41a-...`), because a real line with prefixed order names could not run the validator at all.
+- **File names** accept `NNN-slug.md` (two to four digits), split siblings (`012a-...`) and line prefixes
+  (`A12a-...`), because a real line with prefixed order names could not run the validator at all.
 
 ### Fixed
 

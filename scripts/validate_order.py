@@ -7,7 +7,7 @@ Usage:
 
 Checks (all modes):
   * file name is ``NNN-slug.md`` (two to four digits), ``NNNx-slug.md`` (a split sibling
-    such as ``096a-…``) or ``<PREFIX><N>-slug.md`` (line-prefixed, e.g. ``P41a-…``, ``Q12-…``)
+    such as ``012a-…``) or ``<PREFIX><N>-slug.md`` (line-prefixed, e.g. ``A12a-…``, ``Q12-…``)
   * frontmatter parses; lists are JSON literals; required keys present
   * id/slug agree with the file name; ruling is R-NNNN; write_paths non-empty
   * terminal state list contains a *_DONE entry (and any *_PARTIAL)
@@ -128,7 +128,7 @@ def section_body(text: str, title: str) -> str | None:
 
 
 def name_parts(filename: str):
-    """(id_part, slug) or (None, None). Accepts 106-…, 096a-…, P41a-…, Q12-…"""
+    """(id_part, slug) or (None, None). Accepts 106-…, 012a-…, A12a-…, Q12-…"""
     for pattern in (NAME_NUMBERED, NAME_PREFIXED):
         match = pattern.match(filename)
         if match:
@@ -219,7 +219,7 @@ def validate_one(path: Path, strict: bool = False, legacy_ok: bool = False, batc
     if not number:
         problems.append(
             "file name must be NNN-slug.md, NNNx-slug.md or <PREFIX><N>-slug.md "
-            "(e.g. 106-x.md, 096a-x.md, P41a-x.md)"
+            "(e.g. 106-x.md, 012a-x.md, A12a-x.md)"
         )
 
     meta, err = parse_frontmatter(text)
