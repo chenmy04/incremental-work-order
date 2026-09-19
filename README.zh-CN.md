@@ -99,6 +99,7 @@ git clone --branch v0.1.0 https://github.com/mmm-05610/incremental-work-order ~/
 | `assets/worktree-charter-template.md` | 每棵树的章程（范围、写权、切片、批次） |
 | `assets/executor-charter.md` | 执行者纪律 |
 | `assets/executor-goal-prompt.md` | ≤15 行启动提示词 |
+| `assets/role-goal-prompts.md` | 可选角色与循环的启动提示词（审阅者/验收/侦察者/调度者循环） |
 | `assets/prefs-template.md` | 偏好账（执行模式、批准胃口、节奏、成本上限） |
 | `assets/status-template.md` | 执行账格式，含 §Questions 通道 |
 | `scripts/validate_order.py` | 结构校验器：`--strict`、`--batch <名>`（批次门要求阶段复选框全勾 + `## Batch report` 齐全）、`--legacy-ok`（旧队列）、`--manifest`（对账） |

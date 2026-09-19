@@ -111,6 +111,7 @@ long-running session (ZCode, Claude Code, or any equivalent). **Keep exactly one
 | `assets/worktree-charter-template.md` | The per-tree charter (scope, write rights, slice, batches) |
 | `assets/executor-charter.md` | The executor's discipline |
 | `assets/executor-goal-prompt.md` | The ≤15-line launch prompt |
+| `assets/role-goal-prompts.md` | Launch prompts for the optional roles and loops (reviewer, acceptance, scout, scheduler loop) |
 | `assets/prefs-template.md` | The preferences ledger (execution mode, approval appetite, cadence, cost cap) |
 | `assets/status-template.md` | The executor ledger format, including a questions channel |
 | `scripts/validate_order.py` | Structural validator: `--strict`, `--batch <name>` (the merge gate needs every stage box ticked and a `## Batch report`), `--legacy-ok` for a pre-v2 queue, `--manifest` reconciliation |

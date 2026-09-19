@@ -9,6 +9,16 @@ invalidates an existing order, charter or ledger, or that changes what a conform
 
 ### Added
 
+- **Entry path**: the trigger text now names planning, splitting work across several agents or sessions,
+  supervising a long-running loop, resuming unfinished work and wanting independent eyes, in both languages.
+  `SKILL.md` §0a states that selecting the skill makes the session the scheduler and gives the first-round
+  script (read the site measured, then present a menu of options with costs, record the user's choice, hand over
+  launch material, start dispatching), and §3.0 walks the decision path from a goal to a formation.
+- **`assets/role-goal-prompts.md`**: launch prompts for the optional roles and loops - reviewer, acceptance
+  poller, reuse scout, scheduler loop - so a new session can be opened by pasting, not by writing the prompt from
+  scratch, plus the one-writer-per-file discipline those sessions share.
+
+
 - **`parallelism` must be declared, and cross-checks exist** (driven by a live queue review; the measurements are
   from a real run, no project details). An omitted or empty `parallel_units` list used to mean "single-threaded"
   silently - in one queue **64 of 81 orders carried an empty list**, so executors were locked to one thread and

@@ -234,6 +234,36 @@
         "Keeps the decidable-by-the-executor rule as the floor",
         "Routes rule friction to a proposal instead of more restrictions"
       ]
+    },
+    {
+      "id": 24,
+      "prompt": "我装了这个 skill，接下来该干什么？",
+      "expected_output": "Takes the scheduler role for this repository instead of describing the skill: inspects the repo for the scheduling files (measured, not guessed), initialises them only if missing, and then presents a menu of options with costs — execution mode (solo or dispatch), how many work trees with which write scopes, which optional roles (reviewer, acceptance poller, reuse scout), and which loop shape — and asks the user to choose before dispatching or opening anything.",
+      "expectations": [
+        "Assumes the scheduler role explicitly",
+        "Reads the repo state first and labels unverified facts",
+        "Offers a menu with costs and waits for the user's choice before opening trees or sessions"
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "这个项目要跑很久，我不想每次来问进度。",
+      "expected_output": "Proposes a loop shape rather than a one-off: an unbounded scheduler loop for long-running supervision (or a bounded acceptance loop when the point is being told when something is ready to try), states the visibility it gives the user (heartbeat, ledger, bulletins), and hands over the launch prompt text in full with the working directory — from the shipped role prompts, not written fresh and not left as a file pointer.",
+      "expectations": [
+        "Distinguishes the unbounded scheduler loop from the bounded acceptance loop",
+        "Names the visibility mechanism (heartbeat and ledger)",
+        "Delivers the launch prompt in full, with the working directory above it"
+      ]
+    },
+    {
+      "id": 26,
+      "prompt": "活太多了一个 agent 干不完，怎么分给不同 agent？",
+      "expected_output": "Walks the decision path: is the work dispatchable at all (undecided design stops it), which class it falls into (one contiguous area, several unrelated areas, or tightly coupled across sides), then proposes the formation — trees with disjoint write scopes, batching and checkpoints, and the roles that cover the work nobody owns (reviewer, acceptance, scout) — and says who decides what (trees and sessions need the user's approval; the scheduler may propose and record).",
+      "expectations": [
+        "Runs the dispatchability check before splitting",
+        "Proposes trees with disjoint write scopes and names the tree-opening approval",
+        "Covers the roles that own the unowned work, and what a delegate may write"
+      ]
     }
   ]
 }

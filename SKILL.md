@@ -1,19 +1,23 @@
 ---
 name: incremental-work-order
 description: >-
-  Use when 要建/追加派工单、给长期运行的 goal 增量加任务、开新工作树与新执行者、合并执行者分支回主树、
-  或一个阶段做完准备交回与转入下一阶段时。A repository-backed dispatch workflow: one main tree schedules,
-  each sub-tree executes its own slice with its own work orders, batches produce git checkpoints that are
-  inspection windows rather than stops, and merges back are approval-gated and re-verified on the main tree.
-  Use it for long-running work, multiple concurrent executors, auditable hand-offs and honest gates
-  (gates must state what they do when the resource is absent, and every guard needs a counter-example).
+  要规划一个多步骤的活并决定"怎么组织、怎么分工"时用它：把任务切成工单、开工作树把活分给多个 agent 并行、
+  给长期运行的 goal 增量加任务、接着做没做完的仓库、合并执行者分支回主树、一个阶段做完准备交回或转入下一阶段。
+  A repository-backed dispatch workflow for planning, splitting and delegating multi-step work: this session
+  becomes the scheduler, one main tree keeps the rules, orders and ledgers, each sub-tree executes its own slice
+  with its own work orders and executors, batches produce git checkpoints that are inspection windows rather than
+  stops, and merges back are approval-gated and re-verified on the main tree. Use it when the user asks how to
+  organise a big task, how to split it across several agents or sessions, how to keep a long-running loop
+  supervised, or how to resume unfinished work — and whenever an extra pair of independent eyes (reviewer) or a
+  hand-off to the user (acceptance) is wanted. Gates must state what they do when the resource is absent, and
+  every guard needs a counter-example.
 ---
 
 # 派工单工作流（调度者手册）
 
 > **第一次用？** 读 `GETTING-STARTED.md`。执行者那半边：`assets/executor-goal-prompt.md`（≤15 行启动提示词）
 > 与 `assets/executor-charter.md`（纪律）。初始化清单见 `references/initialization-checklist.md`，
-**新增 2026-09-19：** §0b 分工哲学（调度侧自由 / 执行侧受控）、§12 可选角色与循环、§13 自省与 skill 自优化；开角色前的自查清单见 `references/roles-and-loops.md`。
+**新增 2026-09-19：** §0b 分工哲学（调度侧自由 / 执行侧受控）、§12 可选角色与循环、§13 自省与 skill 自优化；开角色前的自查清单见 `references/roles-and-loops.md`；可选角色的启动提示词见 `assets/role-goal-prompts.md`。
 > 反假绿清单见 `references/false-green-checklist.md`。**本文件是调度者的完整规则。**
 
 ## 0 四种对象与层级
@@ -39,6 +43,29 @@ description: >-
 - **一个队列切片（=一棵树）同时只有一个执行者**；不同树可以各有自己的执行者并行。
 - **调度权威只有一处**（主树的调度文档）。聊天记录、任何副本都不是权威。
 - 子树**不写、不复制**调度文档；契约有问题 → 交回调度者改，再取回。
+
+## 0a 被选中时：你就是本仓的调度者（首轮就这么走）
+
+**这个 skill 一旦生效，本会话就承担调度者角色**（用户 ⇄ 你；执行者是另外的会话，由用户开）。
+你不是"帮忙查流程的人"，你要**看懂现场、给出编队方案、把启动材料备齐**。首轮按这五步：
+
+1. **看现场**（实测，不猜）：仓库里有没有 `docs/implementation/{README.md, manifest.json, status.md, rulings.md}`？
+   有 ⇒ 读它们与 `prefs.md`，看队列/执行者/未决裁决；没有 ⇒ 走 §2 初始化（只建全局那五样，提交，然后回到第 2 步）。
+   事实要带 `文件:行` 或实测值（跑一次构建/测试的计数与退出码），**未验证的写"未验证"**。
+2. **给菜单，不是直接开干**：把下面四件事各给 1–2 个**选项 + 代价**，让用户挑（§0b：可以提案，不替用户拍板）：
+   - **执行模式**：`solo`（主树自己实现，适合单人小活）还是 `dispatch`（子树 + 独立会话执行者）。
+   - **编队**：几棵树、每棵写权面是什么、为什么这么切（判据见 §3.1；开树必须用户批）。
+   - **角色**：除执行者外要不要审阅者 / 验收轮询者 / 复用侦察者（§12）；每个都要说清它负责哪件"没人负责的活"。
+   - **循环形态**：长期值守（无限轮询）还是"到点交接"（有界循环），循环提示词见 `assets/role-goal-prompts.md`。
+3. **把决定写下来**：用户挑完 → 记 `prefs.md`（模式/角色/限额）与 `rulings.md`（有争议或会影响后续的），
+   然后**才**派单、开树、写章程。
+4. **交启动材料**：每个要新开的会话，直接在回复里给**工作目录 + 启动提示词全文**（执行者用
+   `assets/executor-goal-prompt.md`，其余角色用 `assets/role-goal-prompts.md`），**不留占位符、不做文件指针**。
+5. **开始调度并保持可见**：投递即通知（§3.5），每轮/每阶段边界更新账与心跳（§12 的可见性要求），
+   有新裁决或优先级就公告。**调度者自己不开会话**（`/goal` 是用户侧入口），你也**不写实现代码**。
+
+**判断自己该不该长期盯**：目标跨多批、有多个执行者、或用户明确要"别停" ⇒ 提议开一个调度者循环（无限轮询）；
+目标只是"做完这一批" ⇒ 不用循环，做完收口即可。
 
 ## 0b 分工哲学（2026-09-19 定稿，先读这一节）
 
@@ -97,6 +124,18 @@ description: >-
 - 建完**比例化校验 + 只显式 stage 那几个文件 + 提交**，然后**停下等用户给目标**（并从实测里提 1–2 个候选）。
 
 ## 3 从想法到派单
+
+### 3.0 从目标到编队：一次走完的决策路径（每步的规则归它自己的小节）
+
+1. **目标是什么结果**（不是"做什么动作"）；现有计划文档只记指针、不重写。
+2. **可派性**（§3.2）：判据不清 ⇒ 停在设计层，先要裁决，**不许派**。
+3. **归类**（§3.1）：一处连续 / 多处不相干 / 跨端强耦合 ⇒ 决定"几棵树"。
+4. **编队**（§3.3 + §12）：复用已有树还是开新树；除执行者外配哪些角色；每个角色的写权边界。
+5. **循环形态**（§0a 第 2 步 + `assets/role-goal-prompts.md`）：谁常驻、谁有界、谁只在批末出现。
+6. **批次与检查点**（§4）：批次名、收口判据（`--batch <名> --strict`）、检查点 tag 前缀（多线要带线名）。
+7. **启动材料与投递**（§3.5、§3.6）：启动提示词全文 + 工作目录；投递即通知；回复里向用户公告。
+
+**任何一步的产物都可以直接写进给用户的提案里**——用户看的应该是"编队方案 + 代价 + 要粘的提示词"。
 
 ### 3.1 先归类（决定怎么切）——**下面是菜单，不是规定**
 
@@ -294,6 +333,9 @@ description: >-
 | **复用侦察者** | 避免重造轮子（找成熟实现并过许可/出处/集成三档闸） | 自己的候选目录与心跳 |
 | **记录者** | 多棵树的账需要一张可读视图 | 汇总账 |
 | **提案者**（任何角色都可当） | 方向、优先级、验收口径、角色分工的意见 | 提案写进裁决账/审批队列（不替用户拍板） |
+
+**每个可选角色的启动提示词**在 `assets/role-goal-prompts.md`（审阅者 / 验收轮询者 / 复用侦察者 / 调度者循环）——
+开角色时直接填好贴给用户，不要让用户自己写。
 
 **循环有两种形态，按目标选**：
 
