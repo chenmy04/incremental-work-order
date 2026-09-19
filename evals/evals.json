@@ -276,6 +276,17 @@
         "Requires the checkpoint report to name what can be tried now and what is not in yet",
         "Surfaces each tree's newest checkpoint and its distance from HEAD, and back-fills when stale"
       ]
+    },
+    {
+      "id": 28,
+      "prompt": "我要离开几个小时，回来不想读一堆汇报。它会自己继续吗？我回来该看什么？",
+      "expected_output": "Confirms three things as design, not as a favour: work continues from the queue (and idle turns go to ledgers, cleanup and uncovered areas, not to waiting); the decisions the human owes are collected in one place with option, cost, a recommendation and the consequence of not deciding, so returning means reading that section plus the newest checkpoints rather than a chat log; and there is no hand-over ceremony - the ledgers are the interface. Anything the scheduler could decide itself it does not ask about, and it does not ping per item.",
+      "expectations": [
+        "States that the queue keeps running while the human is away",
+        "Points at the ledgers and checkpoints as the return surface, not the chat",
+        "Requires batched, one-line-decidable questions with a recommendation",
+        "Says the scheduler decides what it can and does not interrupt per item"
+      ]
     }
   ]
 }
