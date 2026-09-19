@@ -68,9 +68,10 @@ description: >-
 
 ## 2 初始化（空队列、无执行者时）
 
-**只建"全局一份"那五样**：`README.md`、`manifest.json`（`orders: []` / `executors: []` / `dispatch_rules`）、
+**只建"全局一份"那六样**：`README.md`、`manifest.json`（`orders: []` / `executors: []` / `dispatch_rules`）、
 `status.md`（写入**实测基线**）、`rulings.md`（第一条记"采用本流程"，可引用的编号从 R-0001 起）、
-`executor-charter.md`（执行者纪律，所有执行者共用一份）。详见 `references/initialization-checklist.md`。
+`executor-charter.md`（执行者纪律，所有执行者共用一份）、`prefs.md`（偏好账，已知偏好填上，其余留默认）。
+详见 `references/initialization-checklist.md`。
 
 - **项目计划先找后建**：项目已有计划文档（README/ROADMAP/`docs/**`/issue）→ **只记指针，不另建、不改它**；
   都没有才建一份最小 `project-plan.md`。
